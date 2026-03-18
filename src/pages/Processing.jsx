@@ -13,7 +13,7 @@ export default function Processing() {
       await new Promise(resolve => setTimeout(resolve, 2500));
       
       const scores = calculateTotalScore(profile, documents);
-      const countryScores = calculateCountryScores(scores.total);
+      const countryScores = calculateCountryScores(scores.total, profile.nationality);
       const riskLevel = getRiskLevel(scores.total);
       const risks = analyzeRisks(profile, scores);
       const actions = generateActionPlan(profile, scores, risks);
@@ -78,10 +78,7 @@ export default function Processing() {
         
         <div className="max-w-md mx-auto space-y-2">
           {processingSteps.slice(0, Math.ceil((progress / 100) * processingSteps.length)).map((step, index) => (
-            <div
-              key={index}
-              className="text-gray-400 text-sm flex items-center justify-center gap-2"
-            >
+            <div key={index} className="text-gray-400 text-sm flex items-center justify-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
               {step}
             </div>
@@ -89,10 +86,7 @@ export default function Processing() {
         </div>
 
         <div className="mt-8 max-w-md mx-auto h-2 bg-navy-700 rounded-full overflow-hidden">
-          <div
-            className="h-full gradient-bg transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
+          <div className="h-full gradient-bg transition-all duration-300" style={{ width: `${progress}%` }} />
         </div>
       </div>
     </div>
