@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, User, Briefcase, DollarSign, Plane } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -7,86 +7,26 @@ import { NATIONALITIES, MARITAL_STATUS, EMPLOYMENT_STATUS } from '../data/consta
 export default function Profile() {
   const navigate = useNavigate();
   const { profile, updateProfile } = useApp();
-  
-  const [formData, setFormData] = useState({
-    age: '',
-    nationality: '',
-    maritalStatus: '',
-    employmentStatus: '',
-    monthlyIncome: '',
-    bankBalance: '',
-    travelHistory: 0,
-    previousVisaRefusals: 0,
-  });
-  
   const [step, setStep] = useState(1);
-  const [errors, setErrors] = useState({});
-
-  useEffect(() => {
-    setFormData({
-      age: profile.age || '',
-      nationality: profile.nationality || '',
-      maritalStatus: profile.maritalStatus || '',
-      employmentStatus: profile.employmentStatus || '',
-      monthlyIncome: profile.monthlyIncome || '',
-      bankBalance: profile.bankBalance || '',
-      travelHistory: profile.travelHistory || 0,
-      previousVisaRefusals: profile.previousVisaRefusals || 0,
-    });
-  }, []);
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors({ ...errors, [field]: null });
-    }
-  };
-
-  const handleBlur = (field) => {
-    updateProfile({ [field]: formData[field] });
-  };
-
-  const validateStep = (stepNumber) => {
-    const newErrors = {};
-    
-    if (stepNumber === 1) {
-      if (!formData.age) newErrors.age = 'Age is required';
-      else if (parseInt(formData.age) < 18 || parseInt(formData.age) > 100) {
-        newErrors.age = 'Age must be between 18 and 100';
-      }
-      if (!formData.nationality) newErrors.nationality = 'Nationality is required';
-    }
-    
-    if (stepNumber === 2) {
-      if (!formData.maritalStatus) newErrors.maritalStatus = 'Marital status is required';
-      if (!formData.employmentStatus) newErrors.employmentStatus = 'Employment status is required';
-    }
-    
-    if (stepNumber === 3) {
-      if (!formData.bankBalance) newErrors.bankBalance = 'Bank balance is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    updateProfile({ [field]: value });
   };
 
   const handleNext = () => {
-    updateProfile(formData);
-    if (validateStep(step)) {
+    if (step < 3) {
       setStep(step + 1);
     }
   };
 
   const handleBack = () => {
-    updateProfile(formData);
-    setStep(step - 1);
+    if (step > 1) {
+      setStep(step - 1);
+    }
   };
 
   const handleSubmit = () => {
-    updateProfile(formData);
-    if (validateStep(3)) {
-      navigate('/documents');
-    }
+    navigate('/documents');
   };
 
   const steps = [
@@ -142,56 +82,42 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="label">Age *</label>
+                <label className="label">Age</label>
                 <input
                   type="number"
-                  value={formData.age}
+                  value={profile.age || ''}
                   onChange={(e) => handleChange('age', e.target.value)}
-                  onBlur={() => handleBlur('age')}
                   placeholder="Enter your age"
                   className="input"
                 />
-                {errors.age && <p className="text-red-400 text-sm mt-1">{errors.age}</p>}
               </div>
 
               <div>
-                <label className="label">Nationality *</label>
+                <label className="label">Nationality</label>
                 <select
-                  value={formData.nationality}
+                  value={profile.nationality || ''}
                   onChange={(e) => handleChange('nationality', e.target.value)}
-                  onBlur={() => handleBlur('nationality')}
                   className="input"
                 >
                   <option value="">Select nationality</option>
                   {NATIONALITIES.map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
+                    <option key={n} value={n}>{n}</option>
                   ))}
                 </select>
-                {errors.nationality && (
-                  <p className="text-red-400 text-sm mt-1">{errors.nationality}</p>
-                )}
               </div>
 
               <div>
-                <label className="label">Marital Status *</label>
+                <label className="label">Marital Status</label>
                 <select
-                  value={formData.maritalStatus}
+                  value={profile.maritalStatus || ''}
                   onChange={(e) => handleChange('maritalStatus', e.target.value)}
-                  onBlur={() => handleBlur('maritalStatus')}
                   className="input"
                 >
                   <option value="">Select marital status</option>
                   {MARITAL_STATUS.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
+                    <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
-                {errors.maritalStatus && (
-                  <p className="text-red-400 text-sm mt-1">{errors.maritalStatus}</p>
-                )}
               </div>
             </div>
           )}
@@ -204,32 +130,25 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="label">Employment Status *</label>
+                <label className="label">Employment Status</label>
                 <select
-                  value={formData.employmentStatus}
+                  value={profile.employmentStatus || ''}
                   onChange={(e) => handleChange('employmentStatus', e.target.value)}
-                  onBlur={() => handleBlur('employmentStatus')}
                   className="input"
                 >
                   <option value="">Select employment status</option>
                   {EMPLOYMENT_STATUS.map((e) => (
-                    <option key={e} value={e}>
-                      {e}
-                    </option>
+                    <option key={e} value={e}>{e}</option>
                   ))}
                 </select>
-                {errors.employmentStatus && (
-                  <p className="text-red-400 text-sm mt-1">{errors.employmentStatus}</p>
-                )}
               </div>
 
               <div>
                 <label className="label">Monthly Income (USD)</label>
                 <input
                   type="number"
-                  value={formData.monthlyIncome}
+                  value={profile.monthlyIncome || ''}
                   onChange={(e) => handleChange('monthlyIncome', e.target.value)}
-                  onBlur={() => handleBlur('monthlyIncome')}
                   placeholder="Enter monthly income"
                   className="input"
                 />
@@ -241,27 +160,20 @@ export default function Profile() {
                 </label>
                 <input
                   type="number"
-                  value={formData.travelHistory}
+                  value={profile.travelHistory || 0}
                   onChange={(e) => handleChange('travelHistory', parseInt(e.target.value) || 0)}
-                  onBlur={() => handleBlur('travelHistory')}
                   min="0"
-                  placeholder="Number of international trips"
                   className="input"
                 />
-                <p className="text-gray-500 text-xs mt-1">
-                  Include tourist and business trips
-                </p>
               </div>
 
               <div>
                 <label className="label">Previous Visa Refusals</label>
                 <input
                   type="number"
-                  value={formData.previousVisaRefusals}
+                  value={profile.previousVisaRefusals || 0}
                   onChange={(e) => handleChange('previousVisaRefusals', parseInt(e.target.value) || 0)}
-                  onBlur={() => handleBlur('previousVisaRefusals')}
                   min="0"
-                  placeholder="Number of refusals"
                   className="input"
                 />
               </div>
@@ -276,18 +188,14 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="label">Bank Balance (USD) *</label>
+                <label className="label">Bank Balance (USD)</label>
                 <input
                   type="number"
-                  value={formData.bankBalance}
+                  value={profile.bankBalance || ''}
                   onChange={(e) => handleChange('bankBalance', e.target.value)}
-                  onBlur={() => handleBlur('bankBalance')}
                   placeholder="Total savings in USD"
                   className="input"
                 />
-                {errors.bankBalance && (
-                  <p className="text-red-400 text-sm mt-1">{errors.bankBalance}</p>
-                )}
                 <p className="text-gray-500 text-xs mt-1">
                   This is a key factor in visa approval
                 </p>
@@ -300,7 +208,7 @@ export default function Profile() {
               <button
                 type="button"
                 onClick={handleBack}
-                className="px-6 py-3 rounded-lg border border-white/20 text-white hover:bg-white/5 transition-colors"
+                className="px-6 py-3 rounded-lg border border-white/20 text-white hover:bg-white/5"
               >
                 Back
               </button>
