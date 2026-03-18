@@ -28,8 +28,8 @@ class SupabaseClient {
   auth = {
     signUp: async (email, password) => {
       if (!isConfigured()) {
-        console.log('Demo mode: signUp');
-        return { data: { user: { id: 'demo-user-' + Date.now() } }, error: null };
+        const demoId = 'demo-' + Date.now();
+        return { data: { user: { id: demoId } }, error: null };
       }
       return this.request('/auth/v1/signup', {
         method: 'POST',
@@ -38,8 +38,8 @@ class SupabaseClient {
     },
     signIn: async (email, password) => {
       if (!isConfigured()) {
-        console.log('Demo mode: signIn');
-        return { data: { user: { id: 'demo-user-' + Date.now(), email }, session: { access_token: 'demo-token-' + Date.now() } }, error: null };
+        const demoId = 'demo-' + Date.now();
+        return { data: { user: { id: demoId, email }, session: { access_token: 'demo-token-' + Date.now() } }, error: null };
       }
       return this.request('/auth/v1/token?grant_type=password', {
         method: 'POST',
@@ -54,6 +54,10 @@ class SupabaseClient {
       if (!isConfigured()) return { data: { session: null }, error: null };
       return this.request('/auth/v1/session', { method: 'GET' });
     },
+    getUser: async () => {
+      if (!isConfigured()) return { data: { user: { id: 'demo-user' } }, error: null };
+      return this.request('/auth/v1/user', { method: 'GET' });
+    },
   };
 
   from(table) {
@@ -65,14 +69,21 @@ class SupabaseClient {
             if (!isConfigured()) return { data: null, error: null };
             return self.request(`/${table}?${column}=${encodeURIComponent(value)}&limit=1`, { method: 'GET' });
           },
-          then: (cb) => cb({ data: [], error: null }),
+          order: (column, { ascending = true } = {}) => ({
+            limit: (n) => ({
+              then: (cb) => cb({ data: [], error: null })
+            })
+          }),
         }),
         order: () => ({
-          limit: () => ({ data: [], error: null }),
+          limit: () => ({ data: [], error: null })
         }),
       }),
       insert: async (data) => {
-        if (!isConfigured()) return { data: [data], error: null };
+        if (!isConfigured()) {
+          console.log(`[Demo] Insert into ${table}:`, data);
+          return { data: [{ ...data, id: 'demo-' + Date.now() }], error: null };
+        }
         return self.request(`/${table}`, {
           method: 'POST',
           body: JSON.stringify(data),
@@ -80,7 +91,10 @@ class SupabaseClient {
       },
       update: (data) => ({
         eq: async (column, value) => {
-          if (!isConfigured()) return { data: [data], error: null };
+          if (!isConfigured()) {
+            console.log(`[Demo] Update ${table}:`, { column, value, data });
+            return { data: [data], error: null };
+          }
           return self.request(`/${table}?${column}=${encodeURIComponent(value)}`, {
             method: 'PATCH',
             body: JSON.stringify(data),
@@ -118,5 +132,28 @@ class SupabaseClient {
 }
 
 export const supabase = new SupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+export const saveAssessment = async (userId, assessment) => {
+  const { data, error } = await supabase.from('assessments').insert({
+    user_id: userId,
+    total_score: assessment.totalScore,
+    risk_level: assessment.riskLevel.level,
+    breakdown: assessment.breakdown,
+    country_scores: assessment.countryScores,
+    risk_factors: assessment.risks,
+    action_plans: assessment.actions,
+  });
+  
+  return { data, error };
+};
+
+export const getUserAssessments = async (userId) => {
+  const { data, error } = await supabase.from('assessments')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  
+  return { data, error };
+};
 
 export default supabase;
