@@ -1,9 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { CheckCircle, ArrowRight, FileText, Shield, Globe } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 
 export default function Home() {
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   const features = [
@@ -85,7 +83,7 @@ export default function Home() {
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 text-green-400 mb-4">
             <CheckCircle size={20} />
-            <span>No credit card required</span>
+            <span>Free to use</span>
           </div>
           <p className="text-gray-500 text-sm">
             Disclaimer: This tool provides estimated probabilities and does not guarantee visa approval.
