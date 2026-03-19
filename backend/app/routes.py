@@ -237,6 +237,62 @@ def check_eligibility(current_user, app_id):
     return jsonify(result), 200
 
 
+@bp.route("/api/applications/<int:app_id>/milestone-plan", methods=["GET"])
+@token_required
+def get_milestone_plan(current_user, app_id):
+    application = VisaApplication.query.filter_by(
+        id=app_id, user_id=current_user.id
+    ).first()
+    if not application:
+        return jsonify({"message": "Application not found"}), 404
+
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    if not profile:
+        return jsonify({"message": "Profile not found"}), 404
+
+    profile_dict = profile.to_dict()
+    application_dict = application.to_dict()
+
+    # Calculate current score
+    from app.services.ai_eligibility import calculate_eligibility
+
+    result = calculate_eligibility(profile_dict, application_dict)
+
+    # Generate milestone plan if score is below 70
+    from app.services.ai_eligibility import generate_milestone_plan
+
+    if result["probability"] < 70:
+        milestone_plan = generate_milestone_plan(
+            result["probability"], profile_dict, application_dict
+        )
+    else:
+        milestone_plan = None
+
+    return jsonify(
+        {
+            "current_score": result["probability"],
+            "needs_milestone_plan": result["probability"] < 70,
+            "milestone_plan": milestone_plan,
+        }
+    ), 200
+
+
+@bp.route("/api/notifications/subscribe", methods=["POST"])
+@token_required
+def subscribe_notifications(current_user):
+    data = request.get_json()
+
+    # Store notification preferences
+    # This would be stored in the database in a real app
+    return jsonify(
+        {
+            "message": "Notification preferences saved",
+            "channels": data.get("channels", ["email"]),
+            "milestone_notifications": data.get("enabled", True),
+        }
+    ), 200
+
+
 @bp.route("/api/documents", methods=["GET"])
 @token_required
 def get_documents(current_user):

@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: visaai-backend
+    repo: https://github.com/amine8111/GeminiVisaAi.git
+    branch: main
+    rootDir: backend
+    runtime: python311
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn run:app
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://visaai:XTo3cmnd3tclrEMm6naYKYHWB7FrQ3Pr@dpg-d6tr89paae7s73e49660-a/visaai
+      - key: SECRET_KEY
+        value: gemini-visa-ai-secret-key-2024
+      - key: FRONTEND_URL
+        value: https://celebrated-peony-c7923a.netlify.app

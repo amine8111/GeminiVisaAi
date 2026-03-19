@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { Bot, UserPlus, Shield } from 'lucide-react';
 
 function Register() {
   const { register } = useAuth();
@@ -54,149 +55,138 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
-      <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg">
+    <div className="min-h-screen ai-bg grid-pattern flex items-center justify-center p-4 py-8">
+      <div className="w-full max-w-lg">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-indigo-600">GeminiVisaAI</h1>
-          <p className="text-gray-600 mt-2">Create your account</p>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full glass-card glow-accent mb-3">
+            <UserPlus className="w-8 h-8 text-cyan-400" />
+          </div>
+          <h1 className="text-3xl font-bold gradient-text">Create Account</h1>
+          <p className="text-gray-400 mt-1">Start your AI-powered visa journey</p>
         </div>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
+        <div className="glass-card rounded-2xl p-6 glow">
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-400 text-sm">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                First Name
-              </label>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">First Name</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 rounded-lg"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Last Name</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 rounded-lg"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-300 mb-1">Mobile Number</label>
               <input
                 type="text"
-                name="firstName"
-                value={formData.firstName}
+                name="mobile"
+                value={formData.mobile}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 rounded-lg"
                 required
               />
             </div>
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Last Name
-              </label>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-300 mb-1">Email (Optional)</label>
               <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
+                className="w-full px-3 py-2 rounded-lg"
               />
             </div>
-          </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Mobile Number
-            </label>
-            <input
-              type="text"
-              name="mobile"
-              value={formData.mobile}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Email (Optional)
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Date of Birth
-              </label>
-              <input
-                type="date"
-                name="dateOfBirth"
-                value={formData.dateOfBirth}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Date of Birth</label>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 rounded-lg"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Place of Birth</label>
+                <input
+                  type="text"
+                  name="placeOfBirth"
+                  value={formData.placeOfBirth}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 rounded-lg"
+                  required
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Place of Birth
-              </label>
-              <input
-                type="text"
-                name="placeOfBirth"
-                value={formData.placeOfBirth}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 rounded-lg"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Confirm Password</label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 rounded-lg"
+                  required
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
-          >
-            {loading ? 'Creating Account...' : 'Register'}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full btn-primary glow-button rounded-lg"
+            >
+              {loading ? 'Creating Account...' : 'Create Account'}
+            </button>
+          </form>
 
-        <p className="mt-4 text-center text-gray-600">
-          Already have an account?{' '}
-          <Link to="/login" className="text-indigo-600 hover:underline">
-            Sign in here
-          </Link>
-        </p>
+          <p className="mt-4 text-center text-gray-400">
+            Already have an account?{' '}
+            <Link to="/login" className="text-cyan-400 hover:text-cyan-300 font-medium">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
