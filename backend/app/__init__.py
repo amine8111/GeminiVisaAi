@@ -25,6 +25,8 @@ def create_app(config_class=Config):
                     "http://localhost:3000",
                     "https://celebrated-peony-c7923a.netlify.app",
                     "https://*.netlify.app",
+                    "https://gemini-visa-ai.vercel.app",
+                    "https://*.vercel.app",
                 ]
             }
         },
