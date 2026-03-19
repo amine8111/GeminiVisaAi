@@ -89,7 +89,7 @@ function DocumentManager() {
       setCameraActive(true);
       setScanning(true);
     } catch (error) {
-      alert('Could not access camera. Please ensure camera permissions are granted.');
+      alert('Could not access camera. Please ensure camera permissions are granted.\n\nNote: Camera requires HTTPS. If using localhost, it will work. On deployed site, ensure camera permissions are allowed in browser settings.');
     }
   };
 
