@@ -23,13 +23,19 @@ export default function FormFilling() {
 
   const fetchData = async () => {
     try {
+      const headers = getAuthHeaders();
+      console.log('Fetching with headers:', headers);
+      
       const profileRes = await fetch(`${API_URL}/api/user/profile`, {
-        headers: { ...getAuthHeaders() }
+        headers: headers
       });
       
-      const appsRes = await fetch(`${API_URL}/api/applications`, {
-        headers: { ...getAuthHeaders() }
-      });
+      console.log('Profile response status:', profileRes.status);
+
+      if (profileRes.status === 401) {
+        setError('Session expired. Please log in again.');
+        return;
+      }
 
       if (profileRes.ok) {
         const profileData = await profileRes.json();
@@ -40,8 +46,12 @@ export default function FormFilling() {
           console.log('Passport photo found');
         }
       } else {
-        setError('Could not load profile. Please log in again.');
+        setError('Could not load profile. Please try again.');
       }
+
+      const appsRes = await fetch(`${API_URL}/api/applications`, {
+        headers: headers
+      });
 
       if (appsRes.ok) {
         const appsData = await appsRes.json();
@@ -53,7 +63,7 @@ export default function FormFilling() {
       }
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError('Failed to connect to server. Please try again.');
+      setError('Failed to connect to server. The backend may be sleeping. Please wait 30 seconds and try again.');
     }
     setLoading(false);
   };

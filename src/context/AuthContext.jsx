@@ -7,19 +7,18 @@ const API_URL = 'https://geminivisaai.onrender.com';
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
     if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
-      setToken(storedToken);
     }
     setLoading(false);
   }, []);
 
   const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
@@ -36,7 +35,6 @@ export function AuthProvider({ children }) {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        setToken(data.token);
         setUser(data.user);
         return { success: true };
       }
@@ -59,7 +57,6 @@ export function AuthProvider({ children }) {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        setToken(data.token);
         setUser(data.user);
         return { success: true };
       }
@@ -72,12 +69,11 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    setToken(null);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, getAuthHeaders, API_URL }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, getAuthHeaders, API_URL }}>
       {children}
     </AuthContext.Provider>
   );
