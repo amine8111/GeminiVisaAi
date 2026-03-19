@@ -15,8 +15,28 @@ function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const result = await login(mobile, password);
-    if (!result.success) setError(result.error);
+    setError('Connecting... (Please wait, backend is waking up)');
+    
+    try {
+      const response = await fetch('https://geminivisaai.onrender.com/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.location.href = '/dashboard';
+      } else {
+        setError(data.message || 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      setError('Network error. Please check your connection.');
+    }
+    
     setLoading(false);
   };
 

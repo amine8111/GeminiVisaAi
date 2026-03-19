@@ -36,18 +36,47 @@ function Register() {
       return;
     }
 
-    setLoading(true);
-    const result = await register({
-      mobile: formData.mobile,
-      password: formData.password,
-      email: '',
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      dateOfBirth: '',
-      placeOfBirth: ''
-    });
+    if (!formData.mobile.trim()) {
+      setError('Please enter your mobile number');
+      return;
+    }
 
-    if (!result.success) setError(result.error);
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      setError('Please enter your name');
+      return;
+    }
+
+    setLoading(true);
+    setError('Creating account... (Please wait, backend is waking up)');
+    
+    try {
+      const response = await fetch('https://geminivisaai.onrender.com/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mobile: formData.mobile,
+          password: formData.password,
+          email: '',
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          dateOfBirth: '',
+          placeOfBirth: ''
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.location.href = '/dashboard';
+      } else {
+        setError(data.message || 'Registration failed. Please try again.');
+      }
+    } catch (err) {
+      setError('Network error. Please check your connection and try again.');
+    }
+    
     setLoading(false);
   };
 
@@ -177,13 +206,15 @@ function Register() {
                 <div>
                   <label className="label">Mobile Number</label>
                   <input
-                    type="text"
+                    type="tel"
                     name="mobile"
                     value={formData.mobile}
                     onChange={handleChange}
                     className="input"
                     placeholder="+1 234 567 8900"
                     required
+                    autoComplete="tel"
+                    inputMode="tel"
                   />
                 </div>
 
