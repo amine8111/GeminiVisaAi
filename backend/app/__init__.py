@@ -24,6 +24,7 @@ def create_app(config_class=Config):
                     "http://127.0.0.1:5173",
                     "http://localhost:3000",
                     "https://celebrated-peony-c7923a.netlify.app",
+                    "https://*.netlify.app",
                 ]
             }
         },
