@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { FileDown, Target, TrendingUp, Calendar, CheckCircle, AlertCircle, Bell, Mail, MessageSquare } from 'lucide-react';
+import { COUNTRIES } from '../data/constants';
 
 function EligibilityTest() {
   const { getAuthHeaders, API_URL } = useAuth();
@@ -31,7 +32,6 @@ function EligibilityTest() {
     setMilestonePlan(null);
 
     try {
-      // Create application
       const response = await fetch(`${API_URL}/api/applications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
@@ -43,7 +43,6 @@ function EligibilityTest() {
       const application = await response.json();
       setApplicationId(application.id);
 
-      // Check eligibility
       const eligibilityResponse = await fetch(`${API_URL}/api/applications/${application.id}/eligibility`, {
         headers: { ...getAuthHeaders() }
       });
@@ -53,7 +52,6 @@ function EligibilityTest() {
       const eligibilityResult = await eligibilityResponse.json();
       setResult(eligibilityResult);
 
-      // Get milestone plan if score is low
       if (eligibilityResult.probability < 70) {
         const milestoneResponse = await fetch(`${API_URL}/api/applications/${application.id}/milestone-plan`, {
           headers: { ...getAuthHeaders() }
@@ -142,25 +140,21 @@ function EligibilityTest() {
             <form onSubmit={handleSubmit}>
               <div className="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Destination Country</label>
+                  <label className="label">Destination Country</label>
                   <select name="destination_country" value={formData.destination_country} onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg" required>
-                    <option value="">Select...</option>
-                    <option value="Schengen">Schengen Area</option>
-                    <option value="France">France</option>
-                    <option value="Germany">Germany</option>
-                    <option value="Italy">Italy</option>
-                    <option value="Spain">Spain</option>
-                    <option value="United States">United States</option>
-                    <option value="United Kingdom">United Kingdom</option>
-                    <option value="Canada">Canada</option>
-                    <option value="Australia">Australia</option>
+                    className="input" required>
+                    <option value="">Select country...</option>
+                    {COUNTRIES.map((country) => (
+                      <option key={country.code} value={country.name}>
+                        {country.flag} {country.name} ({country.type})
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Purpose of Travel</label>
+                  <label className="label">Purpose of Travel</label>
                   <select name="purpose_of_travel" value={formData.purpose_of_travel} onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg" required>
+                    className="input" required>
                     <option value="">Select...</option>
                     <option value="Tourism">Tourism</option>
                     <option value="Business">Business</option>
@@ -170,25 +164,35 @@ function EligibilityTest() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Travel Start Date</label>
+                  <label className="label">Travel Start Date</label>
                   <input type="date" name="intended_travel_start" value={formData.intended_travel_start} onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg" required />
+                    className="input" required />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Travel End Date</label>
+                  <label className="label">Travel End Date</label>
                   <input type="date" name="intended_travel_end" value={formData.intended_travel_end} onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg" required />
+                    className="input" required />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Estimated Trip Cost ($)</label>
+                  <label className="label">Estimated Trip Cost ($)</label>
                   <input type="number" name="estimated_trip_cost" value={formData.estimated_trip_cost} onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg" required />
+                    className="input" placeholder="Enter estimated cost in USD" required />
                 </div>
               </div>
 
               <button type="submit" disabled={loading}
-                className="w-full btn-primary glow-button rounded-lg">
-                {loading ? 'Analyzing your profile...' : 'Check Eligibility'}
+                className="w-full btn-primary glow-button rounded-xl py-4 text-base flex items-center justify-center gap-2">
+                {loading ? (
+                  <>
+                    <div className="spinner"></div>
+                    Analyzing your profile...
+                  </>
+                ) : (
+                  <>
+                    <Target className="w-5 h-5" />
+                    Check Eligibility
+                  </>
+                )}
               </button>
             </form>
           </div>

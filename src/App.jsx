@@ -15,13 +15,18 @@ import DocumentManager from './pages/DocumentManager';
 import Processing from './pages/Processing';
 import Results from './pages/Results';
 import Simulator from './pages/Simulator';
+import FormFilling from './pages/FormFilling';
 import Navbar from './components/Navbar';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="min-h-screen ai-bg flex items-center justify-center">
+        <div className="spinner"></div>
+      </div>
+    );
   }
   
   if (!user) {
@@ -32,14 +37,25 @@ function ProtectedRoute({ children }) {
 }
 
 function AppRoutes() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen ai-bg flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <>
       {user && <Navbar />}
       <Routes>
-        <Route path="/" element={<Splash />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Home />} />
+        <Route path="/splash" element={<Splash />} />
         <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" replace /> : <Register />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -52,7 +68,8 @@ function AppRoutes() {
         <Route path="/processing" element={<ProtectedRoute><Processing /></ProtectedRoute>} />
         <Route path="/results" element={<ProtectedRoute><Results /></ProtectedRoute>} />
         <Route path="/simulator" element={<ProtectedRoute><Simulator /></ProtectedRoute>} />
-        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+        <Route path="/form-filling" element={<ProtectedRoute><FormFilling /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );

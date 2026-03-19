@@ -171,6 +171,9 @@ def update_profile(current_user):
     )
     profile.ever_refused_visa = data.get("ever_refused_visa", profile.ever_refused_visa)
     profile.refusal_details = data.get("refusal_details", profile.refusal_details)
+    profile.passport_photo = data.get("passport_photo", profile.passport_photo)
+    profile.marital_status = data.get("marital_status", profile.marital_status)
+    profile.nationality = data.get("nationality", profile.nationality)
 
     db.session.commit()
     return jsonify(profile.to_dict()), 200

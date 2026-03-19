@@ -65,6 +65,9 @@ class Profile(db.Model):
     prior_us_uk_canada_visa = db.Column(db.Boolean, default=False)
     ever_refused_visa = db.Column(db.Boolean, default=False)
     refusal_details = db.Column(db.Text, nullable=True)
+    passport_photo = db.Column(db.Text, nullable=True)
+    marital_status = db.Column(db.String(50), nullable=True)
+    nationality = db.Column(db.String(100), nullable=True)
 
     def to_dict(self):
         return {
@@ -98,6 +101,9 @@ class Profile(db.Model):
             "prior_us_uk_canada_visa": self.prior_us_uk_canada_visa,
             "ever_refused_visa": self.ever_refused_visa,
             "refusal_details": self.refusal_details,
+            "passport_photo": self.passport_photo,
+            "marital_status": self.marital_status,
+            "nationality": self.nationality,
         }
 
 
