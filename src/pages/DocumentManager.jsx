@@ -231,4 +231,97 @@ function DocumentManager() {
                     <button 
                       onClick={saveScannedDocument}
                       disabled={saving || capturedImages.length === 0}
-                      className="flex-1 bg-green-600 text-white py-3 rounded-l
+                      className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      <CheckCircle size={20} />
+                      {saving ? 'Saving...' : 'Save Document'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Camera size={64} className="mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-600 mb-4">Click start to begin scanning</p>
+                  <button 
+                    onClick={startCamera}
+                    className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700"
+                  >
+                    Start Camera
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {showForm && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Add Document Metadata</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
+                  <select name="document_type" value={formData.document_type} onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                    <option value="">Select...</option>
+                    <option value="Passport Scan">Passport Scan</option>
+                    <option value="Bank Statement">Bank Statement</option>
+                    <option value="Employment Letter">Employment Letter</option>
+                    <option value="Travel Insurance">Travel Insurance</option>
+                    <option value="Hotel Booking">Hotel Booking</option>
+                    <option value="Flight Ticket">Flight Ticket</option>
+                    <option value="Photo">Photo</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">File Name</label>
+                  <input type="text" name="file_name" value={formData.file_name} onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="e.g., passport_john_doe.pdf" required />
+                </div>
+              </div>
+              <button type="submit" disabled={saving}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50">
+                {saving ? 'Saving...' : 'Save Metadata'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <table className="min-w-full">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">File Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Uploaded</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {documents.length === 0 ? (
+                <tr>
+                  <td colSpan="3" className="px-6 py-4 text-center text-gray-500">No documents yet</td>
+                </tr>
+              ) : (
+                documents.map((doc) => (
+                  <tr key={doc.id}>
+                    <td className="px-6 py-4 text-sm text-gray-800">{doc.document_type}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600 flex items-center gap-2">
+                      <FileText size={16} />
+                      {doc.file_name}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString() : '-'}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default DocumentManager;
