@@ -1,0 +1,203 @@
+{
+  "common": {
+    "welcome": "مرحباً",
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "submit": "إرسال",
+    "next": "التالي",
+    "back": "رجوع",
+    "logout": "تسجيل الخروج",
+    "dashboard": "لوحة التحكم",
+    "profile": "الملف الشخصي",
+    "documents": "المستندات",
+    "applications": "التطبيقات",
+    "settings": "الإعدادات"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "profile": "الملف الشخصي",
+    "assessment": "التقييم",
+    "simulator": "المحاكي",
+    "formFilling": "تعبئة النموذج",
+    "documents": "المستندات",
+    "applications": "التطبيقات",
+    "logout": "تسجيل الخروج"
+  },
+  "home": {
+    "heroTitle": "اعرف فرص تأشيرتك قبل التقديم",
+    "heroSubtitle": "تقييم الأهلية المدعوم بالذكاء الاصطناعي مع توصيات مخصصة",
+    "getStarted": "ابدأ الآن",
+    "features": {
+      "title": "لماذا تختار VisaGpt؟",
+      "aiPowered": "تحليل بالذكاء الاصطناعي",
+      "aiPoweredDesc": "خوارزميات متقدمة تحلل ملفك الشخصي مقابل متطلبات التأشيرة",
+      "documents": "ماسح المستندات",
+      "documentsDesc": "امسح ونظم مستندات التأشيرة بمساعدة الذكاء الاصطناعي",
+      "formFilling": "تعبئة تلقائية للنماذج",
+      "formFillingDesc": "املأ طلبات التأشيرة تلقائياً ببيانات ملفك الشخصي",
+      "successRate": "نسبة نجاح عالية",
+      "successRateDesc": "انضم إلى آلاف المستخدمين الذين حصلوا على تأشيراتهم"
+    }
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "mobile": "رقم الهاتف",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟",
+    "hasAccount": "لديك حساب بالفعل؟",
+    "signUp": "سجل",
+    "signIn": "دخول"
+  },
+  "profile": {
+    "title": "ملفك الشخصي",
+    "subtitle": "أكمل ملفك الشخصي للحصول على تقييم دقيق للتأشيرة",
+    "personalInfo": "المعلومات الشخصية",
+    "employment": "ال-employment والسفر",
+    "financial": "المعلومات المالية",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "dateOfBirth": "تاريخ الميلاد",
+    "placeOfBirth": "مكان الميلاد",
+    "nationality": "الجنسية",
+    "maritalStatus": "الحالة الاجتماعية",
+    "passportPhoto": "صورة جواز السفر",
+    "employmentStatus": "الحالة employmentية",
+    "companyName": "اسم الشركة",
+    "jobTitle": "المسمى الوظيفي",
+    "monthlyIncome": "الدخل الشهري (دولار أمريكي)",
+    "bankBalance": "متوسط رصيد البنك (آخر 6 أشهر) - دولار أمريكي",
+    "propertyOwner": "مالك عقار",
+    "dependents": "عدد المعالين",
+    "travelHistory": "تاريخ السفر",
+    "priorInternational": "سفر دولي سابق",
+    "priorSchengen": "تأشيرة شنغن سابقة",
+    "priorWesternVisa": "تأشيرة أمريكية/بريطانية/كندية سابقة",
+    "refusedVisa": "تم رفض تأشيرة من قبل",
+    "refusalDetails": "تفاصيل الرفض",
+    "saveContinue": "حفظ والمتابعة"
+  },
+  "dashboard": {
+    "welcome": "مرحباً بعودتك!",
+    "hello": "مرحباً",
+    "subtitle": "مساعد التأشيرة المدعوم بالذكاء الاصطناعي. تحقق من أهليتك، امسح المستندات، واحصل على توصيات مخصصة.",
+    "aiAccuracy": "دقة الذكاء الاصطناعي",
+    "countries": "دولة",
+    "users": "مستخدم",
+    "eligibilityTest": {
+      "title": "تقييم الأهلية بالذكاء الاصطناعي",
+      "description": "تحقق من احتمالية الموافقة على التأشيرة"
+    },
+    "documentScanner": {
+      "title": "ماسح المستندات",
+      "description": "امسح ونظم جميع مستندات التأشيرة"
+    },
+    "simulator": {
+      "title": "محاكي ماذا لو",
+      "description": "شاهد كيف تؤثر التغييرات على فرصك"
+    },
+    "formFilling": {
+      "title": "مساعد تعبئة النماذج",
+      "description": "املأ نماذج شنغن تلقائياً ببياناتك"
+    },
+    "myApplications": {
+      "title": "تطبيقاتي",
+      "description": "تتبع جميع تطبيقات التأشيرة"
+    },
+    "profileManagement": {
+      "title": "إدارة الملف الشخصي",
+      "description": "تحديث معلوماتك"
+    },
+    "cta": {
+      "title": "هل أنت مستعد للتحقق من أهليتك؟",
+      "subtitle": "خذ تقييمنا المدعوم بالذكاء الاصطناعي واحصل على خطة عمل مخصصة.",
+      "button": "ابدأ التقييم"
+    },
+    "supportedCountries": "نغطي هذه الوجهات"
+  },
+  "formFilling": {
+    "title": "مساعد تعبئة النماذج",
+    "subtitle": "املأ نموذج طلب شنغن تلقائياً ببيانات ملفك الشخصي",
+    "schengenForm": "نموذج طلب شنغن",
+    "prefilled": "معبأ مسبقاً ببيانات ملفك الشخصي",
+    "missingInfo": "معلومات مفقودة",
+    "missingFields": "الحقول التالية فارغة وستظهر فارغة في النموذج:",
+    "updateProfile": "تحديث ملفك الشخصي ←",
+    "name": "الاسم",
+    "dateOfBirth": "تاريخ الميلاد",
+    "passportNumber": "رقم جواز السفر",
+    "passportPhoto": "صورة جواز السفر",
+    "ready": "جاهزة للتضمين",
+    "notUploaded": "لم يتم الرفع",
+    "applicationDetails": "تفاصيل التطبيق",
+    "destination": "الوجهة",
+    "purpose": "الغرض",
+    "travelDates": "تواريخ السفر",
+    "probabilityScore": "درجة الاحتمال",
+    "downloadPdf": "تحميل نموذج شنغن (PDF)",
+    "generating": "جاري إنشاء PDF...",
+    "note": "سيتضمن PDF جميع بيانات ملفك الشخصي وصورة جواز السفر. راجع قبل التقديم للقنصلية."
+  },
+  "eligibility": {
+    "title": "تقييم الأهلية بالذكاء الاصطناعي",
+    "subtitle": "تحقق من احتمالية الموافقة على التأشيرة",
+    "selectCountry": "اختر دولة الوجهة",
+    "selectPurpose": "غرض السفر",
+    "startDate": "تاريخ بدء السفر المتوقع",
+    "endDate": "تاريخ انتهاء السفر المتوقع",
+    "tripCost": "تكلفة الرحلة المقدرة (دولار أمريكي)",
+    "checkEligibility": "تحقق من أهليتي",
+    "checking": "جاري تحليل ملفك...",
+    "results": {
+      "title": "نتائج أهليتك للتأشيرة",
+      "probability": "احتمالية الموافقة",
+      "factors": "العوامل الرئيسية",
+      "strengths": "نقاط القوة",
+      "weaknesses": "مجالات للتحسين",
+      "recommendations": "التوصيات"
+    }
+  },
+  "documents": {
+    "title": "ماسح المستندات",
+    "subtitle": "امسح ونظم مستندات التأشيرة",
+    "scanDocument": "مسح المستند",
+    "documentTypes": {
+      "passport": "جواز السفر",
+      "photo": "صورة جواز السفر",
+      "bankStatement": "كشف الحساب البنكي",
+      "travelInsurance": "تأمين السفر",
+      "flightBookings": "حجوزات الطيران",
+      "hotelBookings": "حجوزات الفندق",
+      "employmentLetter": "خطاب employment",
+      "other": "أخرى"
+    },
+    "downloadPdf": "تحميل PDF",
+    "noDocuments": "لم يتم مسح أي مستندات بعد"
+  },
+  "simulator": {
+    "title": "محاكي ماذا لو",
+    "subtitle": "شاهد كيف تؤثر التغييرات على فرص تأشيرتك",
+    "adjustProfile": "عدّل ملفك الشخصي لترى كيف يؤثر على أهليتك",
+    "currentScore": "النتيجة الحالية",
+    "adjustedScore": "النتيجة المعدلة"
+  },
+  "applications": {
+    "title": "تطبيقاتي",
+    "subtitle": "تتبع جميع تطبيقات التأشيرة",
+    "noApplications": "لا توجد تطبيقات بعد",
+    "status": {
+      "draft": "مسودة",
+      "submitted": "تم الإرسال",
+      "approved": "تمت الموافقة",
+      "rejected": "مرفوض"
+    }
+  },
+  "footer": {
+    "tagline": "اعرف فرص تأشيرتك قبل التقديم",
+    "rights": "© 2024 VisaGpt. جميع الحقوق محفوظة."
+  }
+}

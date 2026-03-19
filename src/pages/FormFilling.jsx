@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FileText, Download, Loader2, CheckCircle, AlertCircle, User, Camera, MapPin, Calendar } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { useAuth } from '../context/AuthContext';
 
 export default function FormFilling() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { getAuthHeaders, API_URL } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -62,7 +64,6 @@ export default function FormFilling() {
       });
 
       const width = doc.internal.pageSize.getWidth();
-      const height = doc.internal.pageSize.getHeight();
 
       doc.setFillColor(0, 26, 77);
       doc.rect(0, 0, width, 35, 'F');
@@ -352,25 +353,25 @@ export default function FormFilling() {
       <div className="min-h-screen ai-bg flex items-center justify-center">
         <div className="text-center">
           <div className="spinner mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading your data...</p>
+          <p className="text-gray-400">{t('common.loading')}</p>
         </div>
       </div>
     );
   }
 
   const missingFields = [];
-  if (!profile?.first_name) missingFields.push('First Name');
-  if (!profile?.last_name) missingFields.push('Last Name');
-  if (!profile?.date_of_birth) missingFields.push('Date of Birth');
-  if (!profile?.passport_number) missingFields.push('Passport Number');
-  if (!passportPhoto) missingFields.push('Passport Photo');
+  if (!profile?.first_name) missingFields.push(t('profile.firstName'));
+  if (!profile?.last_name) missingFields.push(t('profile.lastName'));
+  if (!profile?.date_of_birth) missingFields.push(t('profile.dateOfBirth'));
+  if (!profile?.passport_number) missingFields.push(t('formFilling.passportNumber'));
+  if (!passportPhoto) missingFields.push(t('formFilling.passportPhoto'));
 
   return (
     <div className="min-h-screen ai-bg grid-pattern pt-24 pb-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold gradient-text mb-2">Form Filling Assistant</h1>
-          <p className="text-gray-400">Auto-fill your Schengen visa application with your profile data</p>
+          <h1 className="text-3xl font-bold gradient-text mb-2">{t('formFilling.title')}</h1>
+          <p className="text-gray-400">{t('formFilling.subtitle')}</p>
         </div>
 
         <div className="glass-card rounded-3xl p-8 glow">
@@ -379,8 +380,8 @@ export default function FormFilling() {
               <FileText className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Schengen Visa Form</h2>
-              <p className="text-gray-400 text-sm">Pre-filled with your profile information</p>
+              <h2 className="text-xl font-bold text-white">{t('formFilling.schengenForm')}</h2>
+              <p className="text-gray-400 text-sm">{t('formFilling.prefilled')}</p>
             </div>
           </div>
 
@@ -389,10 +390,8 @@ export default function FormFilling() {
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-yellow-500 font-medium mb-1">Missing Information</p>
-                  <p className="text-gray-400 text-sm">
-                    The following fields are empty and will show as blank on the form:
-                  </p>
+                  <p className="text-yellow-500 font-medium mb-1">{t('formFilling.missingInfo')}</p>
+                  <p className="text-gray-400 text-sm">{t('formFilling.missingFields')}</p>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {missingFields.map((field) => (
                       <span key={field} className="px-2 py-1 bg-yellow-500/20 rounded text-yellow-400 text-xs">
@@ -404,7 +403,7 @@ export default function FormFilling() {
                     onClick={() => navigate('/profile')}
                     className="mt-3 text-yellow-500 text-sm hover:underline"
                   >
-                    Update your profile →
+                    {t('formFilling.updateProfile')}
                   </button>
                 </div>
               </div>
@@ -415,7 +414,7 @@ export default function FormFilling() {
             <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-xl">
               <User className="w-5 h-5 text-purple-400" />
               <div className="flex-1">
-                <p className="text-gray-400 text-xs">Name</p>
+                <p className="text-gray-400 text-xs">{t('formFilling.name')}</p>
                 <p className="text-white">{profile?.first_name || '—'} {profile?.last_name || '—'}</p>
               </div>
             </div>
@@ -423,7 +422,7 @@ export default function FormFilling() {
             <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-xl">
               <Calendar className="w-5 h-5 text-cyan-400" />
               <div className="flex-1">
-                <p className="text-gray-400 text-xs">Date of Birth</p>
+                <p className="text-gray-400 text-xs">{t('formFilling.dateOfBirth')}</p>
                 <p className="text-white">{formatDate(profile?.date_of_birth)}</p>
               </div>
             </div>
@@ -431,7 +430,7 @@ export default function FormFilling() {
             <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-xl">
               <MapPin className="w-5 h-5 text-pink-400" />
               <div className="flex-1">
-                <p className="text-gray-400 text-xs">Passport Number</p>
+                <p className="text-gray-400 text-xs">{t('formFilling.passportNumber')}</p>
                 <p className="text-white">{profile?.passport_number || '—'}</p>
               </div>
             </div>
@@ -439,16 +438,16 @@ export default function FormFilling() {
             <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-xl">
               <Camera className="w-5 h-5 text-green-400" />
               <div className="flex-1">
-                <p className="text-gray-400 text-xs">Passport Photo</p>
+                <p className="text-gray-400 text-xs">{t('formFilling.passportPhoto')}</p>
                 {passportPhoto ? (
                   <div className="flex items-center gap-3 mt-1">
                     <img src={passportPhoto} alt="Passport" className="w-12 h-12 rounded-lg object-cover" />
                     <span className="text-green-400 text-sm flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4" /> Ready to embed
+                      <CheckCircle className="w-4 h-4" /> {t('formFilling.ready')}
                     </span>
                   </div>
                 ) : (
-                  <p className="text-yellow-400">Not uploaded</p>
+                  <p className="text-yellow-400">{t('formFilling.notUploaded')}</p>
                 )}
               </div>
             </div>
@@ -456,22 +455,22 @@ export default function FormFilling() {
 
           {application && (
             <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-6">
-              <p className="text-purple-400 text-sm font-medium mb-2">Application Details</p>
+              <p className="text-purple-400 text-sm font-medium mb-2">{t('formFilling.applicationDetails')}</p>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-400">Destination</p>
+                  <p className="text-gray-400">{t('formFilling.destination')}</p>
                   <p className="text-white">{application.destination_country}</p>
                 </div>
                 <div>
-                  <p className="text-gray-400">Purpose</p>
+                  <p className="text-gray-400">{t('formFilling.purpose')}</p>
                   <p className="text-white">{application.purpose_of_travel}</p>
                 </div>
                 <div>
-                  <p className="text-gray-400">Travel Dates</p>
+                  <p className="text-gray-400">{t('formFilling.travelDates')}</p>
                   <p className="text-white">{formatDate(application.intended_travel_start)} - {formatDate(application.intended_travel_end)}</p>
                 </div>
                 <div>
-                  <p className="text-gray-400">Probability Score</p>
+                  <p className="text-gray-400">{t('formFilling.probabilityScore')}</p>
                   <p className="text-white">{application.success_probability || '—'}%</p>
                 </div>
               </div>
@@ -486,19 +485,18 @@ export default function FormFilling() {
             {generating ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Generating PDF...
+                {t('formFilling.generating')}
               </>
             ) : (
               <>
                 <Download className="w-5 h-5" />
-                Download Schengen Form (PDF)
+                {t('formFilling.downloadPdf')}
               </>
             )}
           </button>
 
           <p className="text-gray-500 text-xs text-center mt-4">
-            The PDF will include all your profile data and passport photo. 
-            Review before submitting to the consulate.
+            {t('formFilling.note')}
           </p>
         </div>
       </div>

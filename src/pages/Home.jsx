@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Bot, Sparkles, ArrowRight, Brain, Target, Clock, FileCheck, CheckCircle, Star, TrendingUp, Award, Shield, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Bot, Sparkles, ArrowRight, Brain, Target, Clock, FileCheck, Star, TrendingUp, Award } from 'lucide-react';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 function Play(props) {
   return (
@@ -10,11 +12,13 @@ function Play(props) {
 }
 
 export default function Home() {
+  const { t } = useTranslation();
+
   const features = [
-    { icon: Brain, color: 'from-purple-500 to-pink-500', title: 'AI-Powered Analysis', desc: 'Advanced algorithms analyze hundreds of data points' },
+    { icon: Brain, color: 'from-purple-500 to-pink-500', title: t('home.features.aiPowered'), desc: t('home.features.aiPoweredDesc') },
     { icon: Target, color: 'from-cyan-500 to-blue-500', title: 'Accurate Predictions', desc: 'Get precise visa approval probability scores' },
-    { icon: Clock, color: 'from-green-500 to-emerald-500', title: 'Save Time & Money', desc: 'Know your chances before expensive applications' },
-    { icon: FileCheck, color: 'from-orange-500 to-yellow-500', title: 'Document Scanner', desc: 'Scan & organize all visa documents digitally' },
+    { icon: Clock, color: 'from-green-500 to-emerald-500', title: 'Save Time & Money', desc: "Know your chances before expensive applications" },
+    { icon: FileCheck, color: 'from-orange-500 to-yellow-500', title: t('home.features.documents'), desc: t('home.features.documentsDesc') },
   ];
 
   const stats = [
@@ -59,7 +63,6 @@ export default function Home() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 relative z-10">
-        {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <div className="flex items-center gap-3">
             <div className="w-14 h-14 rounded-2xl gradient-bg flex items-center justify-center glow pulse-glow">
@@ -70,12 +73,14 @@ export default function Home() {
               <p className="text-xs text-cyan-400">AI-Powered Visa Intelligence</p>
             </div>
           </div>
-          <Link to="/login" className="px-5 py-2 rounded-xl border border-purple-500/50 text-purple-400 hover:bg-purple-500/10 transition-all">
-            Sign In
-          </Link>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <Link to="/login" className="px-5 py-2 rounded-xl border border-purple-500/50 text-purple-400 hover:bg-purple-500/10 transition-all">
+              {t('auth.signIn')}
+            </Link>
+          </div>
         </div>
 
-        {/* Hero Section */}
         <div className="text-center mb-16 mt-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 mb-6">
             <Sparkles className="w-4 h-4 text-yellow-400" />
@@ -83,17 +88,17 @@ export default function Home() {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 leading-tight">
-            Know Your <span className="gradient-text">Visa Chances</span>
-            <br />Before You Apply
+            {t('home.heroTitle').split(' ').slice(0, 3).join(' ')}
+            <span className="gradient-text"> {t('home.heroTitle').split(' ').slice(3).join(' ')}</span>
           </h1>
           
           <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
-            Don't guess your visa approval odds. Let AI analyze your profile and tell you exactly what to improve before spending thousands on applications.
+            {t('home.heroSubtitle')}
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/register" className="btn-primary px-8 py-4 text-lg glow-button">
-              Start Free Assessment
+              {t('home.getStarted')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
             <button className="px-8 py-4 rounded-xl border border-white/20 text-white hover:bg-white/5 transition-all flex items-center gap-2">
@@ -103,7 +108,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
           {stats.map((stat, i) => (
             <div key={i} className="glass-card rounded-2xl p-6 text-center">
@@ -113,9 +117,8 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Features */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-white text-center mb-4">Why Choose VisaGpt?</h2>
+          <h2 className="text-3xl font-bold text-white text-center mb-4">{t('home.features.title')}</h2>
           <p className="text-gray-400 text-center mb-10 max-w-xl mx-auto">We use cutting-edge AI to analyze hundreds of data points and give you the most accurate visa eligibility assessment.</p>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -131,7 +134,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* How It Works */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-white text-center mb-10">How It Works</h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -147,7 +149,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* What We Offer */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-white text-center mb-10">What We Offer</h2>
           <div className="grid md:grid-cols-3 gap-6">
@@ -163,7 +164,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Testimonials */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-white text-center mb-10">What Users Say</h2>
           <div className="grid md:grid-cols-3 gap-6">
@@ -187,7 +187,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Supported Countries */}
         <div className="mb-16 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Supported Visa Types</h2>
           <p className="text-gray-400 mb-8">We analyze eligibility for visas to these popular destinations</p>
@@ -200,24 +199,22 @@ export default function Home() {
           </div>
         </div>
 
-        {/* CTA */}
         <div className="glass-card rounded-3xl p-10 text-center glow mb-16">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to Know Your Visa Chances?</h2>
+          <h2 className="text-3xl font-bold text-white mb-4">{t('home.heroTitle')}</h2>
           <p className="text-gray-400 mb-8 max-w-lg mx-auto">Join thousands of users who made informed decisions about their visa applications.</p>
           <Link to="/register" className="btn-primary px-10 py-4 text-lg glow-button inline-flex items-center gap-2">
-            Get Started Free
+            {t('home.getStarted')}
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
 
-        {/* Footer */}
         <div className="text-center text-gray-500 text-sm pb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Bot className="w-5 h-5 text-purple-400" />
             <span className="gradient-text font-semibold">VisaGpt</span>
           </div>
-          <p>Know Your Visa Chances Before You Apply</p>
-          <p className="mt-2">© 2024 VisaGpt. All rights reserved.</p>
+          <p>{t('footer.tagline')}</p>
+          <p className="mt-2">{t('footer.rights')}</p>
         </div>
       </div>
     </div>

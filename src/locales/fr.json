@@ -1,0 +1,203 @@
+{
+  "common": {
+    "welcome": "Bienvenue",
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "submit": "Soumettre",
+    "next": "Suivant",
+    "back": "Retour",
+    "logout": "Déconnexion",
+    "dashboard": "Tableau de bord",
+    "profile": "Profil",
+    "documents": "Documents",
+    "applications": "Applications",
+    "settings": "Paramètres"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "profile": "Profil",
+    "assessment": "Évaluation",
+    "simulator": "Simulateur",
+    "formFilling": "Remplissage",
+    "documents": "Documents",
+    "applications": "Applications",
+    "logout": "Déconnexion"
+  },
+  "home": {
+    "heroTitle": "Connaissez Vos Chances de Visa Avant de Postuler",
+    "heroSubtitle": "Évaluation de l'éligibilité au visa alimentée par l'IA avec des recommandations personnalisées",
+    "getStarted": "Commencer",
+    "features": {
+      "title": "Pourquoi Choisir VisaGpt?",
+      "aiPowered": "Analyse par IA",
+      "aiPoweredDesc": "Algorithmes avancés analysent votre profil par rapport aux exigences du visa",
+      "documents": "Scanner de Documents",
+      "documentsDesc": "Numérisez et organisez vos documents de visa avec l'assistance de l'IA",
+      "formFilling": "Remplissage Automatique",
+      "formFillingDesc": "Remplissez automatiquement les demandes de visa avec les données de votre profil",
+      "successRate": "Taux de Réussite Élevé",
+      "successRateDesc": "Rejoignez des milliers d'utilisateurs qui ont obtenu leur visa"
+    }
+  },
+  "auth": {
+    "login": "Connexion",
+    "register": "Créer un compte",
+    "email": "Email",
+    "mobile": "Numéro de téléphone",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "forgotPassword": "Mot de passe oublié?",
+    "noAccount": "Pas de compte?",
+    "hasAccount": "Déjà un compte?",
+    "signUp": "S'inscrire",
+    "signIn": "Se connecter"
+  },
+  "profile": {
+    "title": "Votre Profil",
+    "subtitle": "Complétez votre profil pour obtenir des évaluations de visa précises",
+    "personalInfo": "Informations Personnelles",
+    "employment": "Emploi et Voyage",
+    "financial": "Informations Financières",
+    "firstName": "Prénom",
+    "lastName": "Nom de Famille",
+    "dateOfBirth": "Date de Naissance",
+    "placeOfBirth": "Lieu de Naissance",
+    "nationality": "Nationalité",
+    "maritalStatus": "État Civil",
+    "passportPhoto": "Photo de Passeport",
+    "employmentStatus": "Statut d'Emploi",
+    "companyName": "Nom de l'Entreprise",
+    "jobTitle": "Intitulé du Poste",
+    "monthlyIncome": "Revenu Mensuel (USD)",
+    "bankBalance": "Solde Bancaire Moyen (6 derniers mois) - USD",
+    "propertyOwner": "Propriétaire",
+    "dependents": "Nombre de Personnes à Charge",
+    "travelHistory": "Historique de Voyage",
+    "priorInternational": "Voyage International Précédent",
+    "priorSchengen": "Visa Schengen Précédent",
+    "priorWesternVisa": "Visa USA/RU/Canada Précédent",
+    "refusedVisa": "Visa Déjà Refusé",
+    "refusalDetails": "Détails du Refus",
+    "saveContinue": "Enregistrer et Continuer"
+  },
+  "dashboard": {
+    "welcome": "Bon retour!",
+    "hello": "Bonjour",
+    "subtitle": "Votre assistant de visa alimenté par l'IA. Vérifiez votre éligibilité, scannez les documents et obtenez des recommandations personnalisées.",
+    "aiAccuracy": "Précision IA",
+    "countries": "Pays",
+    "users": "Utilisateurs",
+    "eligibilityTest": {
+      "title": "Évaluation de l'Éligibilité IA",
+      "description": "Vérifiez votre probabilité d'approbation de visa"
+    },
+    "documentScanner": {
+      "title": "Scanner de Documents",
+      "description": "Scannez et organisez tous vos documents de visa"
+    },
+    "simulator": {
+      "title": "Simulateur What-If",
+      "description": "Voyez comment les changements affectent vos chances"
+    },
+    "formFilling": {
+      "title": "Assistant de Remplissage",
+      "description": "Remplissez automatiquement les formulaires Schengen"
+    },
+    "myApplications": {
+      "title": "Mes Applications",
+      "description": "Suivez toutes vos applications de visa"
+    },
+    "profileManagement": {
+      "title": "Gestion du Profil",
+      "description": "Mettez à jour vos informations"
+    },
+    "cta": {
+      "title": "Prêt à vérifier votre éligibilité?",
+      "subtitle": "Prenez notre évaluation alimentée par l'IA et obtenez votre plan d'action personnalisé.",
+      "button": "Commencer l'Évaluation"
+    },
+    "supportedCountries": "Nous Couvrons Ces Destinations"
+  },
+  "formFilling": {
+    "title": "Assistant de Remplissage de Formulaire",
+    "subtitle": "Remplissez automatiquement votre demande de visa Schengen avec les données de votre profil",
+    "schengenForm": "Formulaire de Demande Schengen",
+    "prefilled": "Pré-rempli avec vos informations de profil",
+    "missingInfo": "Informations Manquantes",
+    "missingFields": "Les champs suivants sont vides et apparaîtront vides sur le formulaire:",
+    "updateProfile": "Mettre à jour votre profil →",
+    "name": "Nom",
+    "dateOfBirth": "Date de Naissance",
+    "passportNumber": "Numéro de Passeport",
+    "passportPhoto": "Photo de Passeport",
+    "ready": "Prêt à intégrer",
+    "notUploaded": "Non téléchargé",
+    "applicationDetails": "Détails de l'Application",
+    "destination": "Destination",
+    "purpose": "Objectif",
+    "travelDates": "Dates de Voyage",
+    "probabilityScore": "Score de Probabilité",
+    "downloadPdf": "Télécharger le Formulaire Schengen (PDF)",
+    "generating": "Génération du PDF...",
+    "note": "Le PDF inclura toutes vos données de profil et votre photo de passeport. Vérifiez avant de soumettre au consulat."
+  },
+  "eligibility": {
+    "title": "Évaluation de l'Éligibilité IA",
+    "subtitle": "Vérifiez votre probabilité d'approbation de visa",
+    "selectCountry": "Sélectionner le Pays de Destination",
+    "selectPurpose": "Objet du Voyage",
+    "startDate": "Date de Début de Voyage Prévue",
+    "endDate": "Date de Fin de Voyage Prévue",
+    "tripCost": "Coût Estimé du Voyage (USD)",
+    "checkEligibility": "Vérifier Mon Éligibilité",
+    "checking": "Analyse de votre profil...",
+    "results": {
+      "title": "Vos Résultats d'Éligibilité au Visa",
+      "probability": "Probabilité d'Approbation",
+      "factors": "Facteurs Clés",
+      "strengths": "Forces",
+      "weaknesses": "Domaines à Améliorer",
+      "recommendations": "Recommandations"
+    }
+  },
+  "documents": {
+    "title": "Scanner de Documents",
+    "subtitle": "Scannez et organisez vos documents de visa",
+    "scanDocument": "Scanner le Document",
+    "documentTypes": {
+      "passport": "Passeport",
+      "photo": "Photo de Passeport",
+      "bankStatement": "Relevé Bancaire",
+      "travelInsurance": "Assurance Voyage",
+      "flightBookings": "Réservations de Vol",
+      "hotelBookings": "Réservations d'Hôtel",
+      "employmentLetter": "Attestation d'Emploi",
+      "other": "Autre"
+    },
+    "downloadPdf": "Télécharger PDF",
+    "noDocuments": "Aucun document scanné"
+  },
+  "simulator": {
+    "title": "Simulateur What-If",
+    "subtitle": "Voyez comment les changements affectent vos chances de visa",
+    "adjustProfile": "Ajustez votre profil pour voir comment cela affecte votre éligibilité",
+    "currentScore": "Score Actuel",
+    "adjustedScore": "Score Ajusté"
+  },
+  "applications": {
+    "title": "Mes Applications",
+    "subtitle": "Suivez toutes vos applications de visa",
+    "noApplications": "Pas encore d'applications",
+    "status": {
+      "draft": "Brouillon",
+      "submitted": "Soumis",
+      "approved": "Approuvé",
+      "rejected": "Rejeté"
+    }
+  },
+  "footer": {
+    "tagline": "Connaissez Vos Chances de Visa Avant de Postuler",
+    "rights": "© 2024 VisaGpt. Tous droits réservés."
+  }
+}

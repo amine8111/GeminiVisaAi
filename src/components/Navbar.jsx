@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, FileText, User, Clipboard, FolderOpen, LogOut, Menu, X, Bot } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Home, FileText, User, Clipboard, FolderOpen, LogOut, Menu, X, Bot, FileSignature } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar() {
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -15,12 +18,13 @@ export default function Navbar() {
   };
 
   const navItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: Home },
-    { path: '/profile', label: 'Profile', icon: User },
-    { path: '/eligibility-test', label: 'Assessment', icon: Clipboard },
-    { path: '/simulator', label: 'Simulator', icon: Clipboard },
-    { path: '/documents', label: 'Documents', icon: FileText },
-    { path: '/applications', label: 'Applications', icon: FolderOpen },
+    { path: '/dashboard', label: t('nav.dashboard'), icon: Home },
+    { path: '/profile', label: t('nav.profile'), icon: User },
+    { path: '/eligibility-test', label: t('nav.assessment'), icon: Clipboard },
+    { path: '/simulator', label: t('nav.simulator'), icon: Clipboard },
+    { path: '/form-filling', label: t('nav.formFilling'), icon: FileSignature },
+    { path: '/documents', label: t('nav.documents'), icon: FileText },
+    { path: '/applications', label: t('nav.applications'), icon: FolderOpen },
   ];
 
   if (!user) return null;
@@ -54,21 +58,25 @@ export default function Navbar() {
                 <span className="text-sm">{item.label}</span>
               </Link>
             ))}
+            <LanguageSwitcher />
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all ml-2"
             >
               <LogOut size={16} />
-              <span className="text-sm">Logout</span>
+              <span className="text-sm">{t('nav.logout')}</span>
             </button>
           </div>
 
-          <button
-            className="md:hidden text-white p-2"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <LanguageSwitcher />
+            <button
+              className="text-white p-2"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
         {menuOpen && (
@@ -93,7 +101,7 @@ export default function Navbar() {
               className="flex items-center gap-3 px-3 py-3 rounded-lg text-red-400 w-full"
             >
               <LogOut size={20} />
-              <span>Logout</span>
+              <span>{t('nav.logout')}</span>
             </button>
           </div>
         )}
