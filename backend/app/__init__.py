@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from config import Config
@@ -14,22 +14,31 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
 
+    @app.before_request
+    def handle_options():
+        if request.method == "OPTIONS":
+            response = make_response("", 200)
+            origin = request.headers.get("Origin", "")
+            if origin.startswith("https://") and (
+                "vercel.app" in origin or "localhost" in origin
+            ):
+                response.headers["Access-Control-Allow-Origin"] = origin
+            else:
+                response.headers["Access-Control-Allow-Origin"] = "*"
+            response.headers["Access-Control-Allow-Methods"] = (
+                "GET, POST, PUT, DELETE, OPTIONS"
+            )
+            response.headers["Access-Control-Allow-Headers"] = (
+                "Content-Type, Authorization"
+            )
+            response.headers["Access-Control-Max-Age"] = "3600"
+            return response
+
     @app.after_request
     def add_cors_headers(response):
-        allowed_origins = [
-            "https://visa-ai-one.vercel.app",
-            "https://*.vercel.app",
-            "http://localhost:5173",
-            "http://localhost:3000",
-        ]
         origin = request.headers.get("Origin", "")
-        if (
-            any(
-                origin.startswith(o.replace("*", ""))
-                for o in allowed_origins
-                if "*" in o
-            )
-            or origin in allowed_origins
+        if origin.startswith("https://") and (
+            "vercel.app" in origin or "localhost" in origin
         ):
             response.headers["Access-Control-Allow-Origin"] = origin
         else:
