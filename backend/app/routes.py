@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify, send_file, make_response
 from app import db
 from app.models import User, Profile, VisaApplication, DocumentMetadata
 from app.services.ai_eligibility import calculate_eligibility
@@ -10,6 +10,23 @@ from functools import wraps
 from config import Config
 
 bp = Blueprint("routes", __name__)
+
+
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response
+
+
+@bp.route("/api/options", methods=["OPTIONS"])
+def options_handler():
+    return make_response("", 200)
+
+
+@bp.after_request
+def after_request(response):
+    return add_cors_headers(response)
 
 
 def token_required(f):
@@ -44,7 +61,7 @@ def health_check():
     ), 200
 
 
-@bp.route("/api/register", methods=["POST"])
+@bp.route("/api/register", methods=["POST", "OPTIONS"])
 def register():
     data = request.get_json()
 
@@ -80,7 +97,7 @@ def register():
     return jsonify({"token": token, "user": user.to_dict()}), 201
 
 
-@bp.route("/api/login", methods=["POST"])
+@bp.route("/api/login", methods=["POST", "OPTIONS"])
 def login():
     data = request.get_json()
 
