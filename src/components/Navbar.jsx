@@ -1,44 +1,35 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, FileText, User, RotateCcw, LogOut, Menu, X } from 'lucide-react';
+import { Home, FileText, User, Clipboard, FolderOpen, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useApp } from '../context/AppContext';
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
-  const { reset } = useApp();
+  const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogout = async () => {
-    await signOut();
-    reset();
-    navigate('/auth');
-  };
-
-  const handleNewAssessment = () => {
-    reset();
-    navigate('/profile');
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   const navItems = [
-    { path: '/home', label: 'Home', icon: Home },
+    { path: '/dashboard', label: 'Dashboard', icon: Home },
     { path: '/profile', label: 'Profile', icon: User },
+    { path: '/eligibility-test', label: 'Eligibility Test', icon: Clipboard },
+    { path: '/applications', label: 'Applications', icon: FolderOpen },
     { path: '/documents', label: 'Documents', icon: FileText },
   ];
 
   if (!user) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-navy-900/95 backdrop-blur-sm border-b border-white/10">
-      <div className="max-w-6xl mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
-          <Link to="/home" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">V</span>
-            </div>
-            <span className="text-xl font-bold gradient-text">VisaAI</span>
+    <nav className="bg-indigo-600 text-white">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="flex items-center justify-between py-3">
+          <Link to="/dashboard" className="flex items-center gap-2">
+            <span className="text-2xl font-bold">GeminiVisaAI</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-2">
@@ -46,10 +37,10 @@ export default function Navbar() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
                   location.pathname === item.path
-                    ? 'bg-neon-purple/20 text-neon-purple'
-                    : 'text-gray-300 hover:text-white'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
                 }`}
               >
                 <item.icon size={18} />
@@ -57,15 +48,8 @@ export default function Navbar() {
               </Link>
             ))}
             <button
-              onClick={handleNewAssessment}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-300 hover:text-white transition-colors"
-            >
-              <RotateCcw size={18} />
-              <span>New</span>
-            </button>
-            <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-red-400 hover:text-red-300 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-red-200 hover:text-white hover:bg-white/10 transition-colors ml-2"
             >
               <LogOut size={18} />
               <span>Logout</span>
@@ -81,16 +65,16 @@ export default function Navbar() {
         </div>
 
         {menuOpen && (
-          <div className="md:hidden mt-4 pb-4 space-y-2">
+          <div className="md:hidden pb-3 space-y-1">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={() => setMenuOpen(false)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
                   location.pathname === item.path
-                    ? 'bg-neon-purple/20 text-neon-purple'
-                    : 'text-gray-300'
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/80'
                 }`}
               >
                 <item.icon size={18} />
@@ -98,15 +82,8 @@ export default function Navbar() {
               </Link>
             ))}
             <button
-              onClick={() => { handleNewAssessment(); setMenuOpen(false); }}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-300 w-full"
-            >
-              <RotateCcw size={18} />
-              <span>New Assessment</span>
-            </button>
-            <button
               onClick={() => { handleLogout(); setMenuOpen(false); }}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-red-400 w-full"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-red-200 w-full"
             >
               <LogOut size={18} />
               <span>Logout</span>

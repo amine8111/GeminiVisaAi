@@ -1,16 +1,99 @@
-# React + Vite
+# GeminiVisaAI - Visa Application Assistant
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A production-ready web application to assist users with visa applications, featuring:
+- User authentication (JWT)
+- Profile management (personal, passport, employment, financial, travel history)
+- AI-powered visa eligibility prediction (rule-based expert system)
+- Document metadata tracking
+- PDF form generation for visa applications
 
-Currently, two official plugins are available:
+## Tech Stack
+- **Frontend**: React.js + Vite + Tailwind CSS
+- **Backend**: Python Flask + SQLAlchemy
+- **Database**: SQLite (dev) / PostgreSQL (prod)
+- **Authentication**: JWT
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Project Structure
+```
+visa-ai/
+├── backend/              # Flask API
+│   ├── app/
+│   │   ├── models.py     # Database models
+│   │   ├── routes.py     # API endpoints
+│   │   └── services/     # Business logic
+│   ├── config.py         # Configuration
+│   ├── requirements.txt  # Python dependencies
+│   └── run.py           # Entry point
+├── src/                  # React frontend
+│   ├── pages/           # Page components
+│   ├── context/         # Auth context
+│   └── components/      # UI components
+├── dist/                # Built frontend
+└── package.json         # Frontend dependencies
+```
 
-## React Compiler
+## Setup & Running
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Backend (Development)
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python run.py
+```
+Backend runs at http://localhost:5000
 
-## Expanding the ESLint configuration
+### Frontend (Development)
+```bash
+cd visa-ai
+npm install
+npm run dev
+```
+Frontend runs at http://localhost:5173
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Production Build
+```bash
+npm run build
+```
+Deploy the `dist/` folder to any static hosting (Netlify, Vercel, etc.)
+
+## API Endpoints
+- `POST /api/register` - Register new user
+- `POST /api/login` - Login
+- `GET /api/user/profile` - Get profile
+- `PUT /api/user/profile` - Update profile
+- `POST /api/applications` - Create application
+- `GET /api/applications` - List applications
+- `GET /api/applications/:id/eligibility` - Check eligibility
+- `GET /api/documents` - List documents
+- `POST /api/documents/upload` - Add document
+- `GET /api/generate-schengen-form/:id` - Generate PDF
+
+## Environment Variables
+
+### Backend (.env)
+```
+SECRET_KEY=your-secret-key
+DATABASE_URL=sqlite:///visaai.db
+SENDGRID_API_KEY=your-sendgrid-key
+FRONTEND_URL=http://localhost:5173
+```
+
+### Frontend (.env)
+```
+VITE_BACKEND_URL=http://localhost:5000
+```
+
+## Deployment
+
+### Backend (Render.com)
+1. Push backend folder to GitHub
+2. Create PostgreSQL database on Render
+3. Create Python web service
+4. Set environment variables
+
+### Frontend (Netlify)
+1. Run `npm run build`
+2. Upload dist folder or connect to GitHub
+3. Set VITE_BACKEND_URL to your backend URL
