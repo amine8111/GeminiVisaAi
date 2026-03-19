@@ -1,10 +1,9 @@
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Globe } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
 
 const languages = [
   { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+  { code: 'ar', name: 'العربية', flag: '🇸🇦', dir: 'rtl' },
   { code: 'fr', name: 'Français', flag: '🇫🇷' }
 ];
 
@@ -14,6 +13,17 @@ export default function LanguageSwitcher() {
   const dropdownRef = useRef(null);
 
   const currentLang = languages.find(l => l.code === i18n.language) || languages[0];
+
+  useEffect(() => {
+    const savedLang = localStorage.getItem('i18nextLng');
+    if (savedLang && savedLang !== i18n.language) {
+      i18n.changeLanguage(savedLang);
+      const lang = languages.find(l => l.code === savedLang);
+      if (lang?.dir) {
+        document.documentElement.dir = lang.dir;
+      }
+    }
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -26,9 +36,17 @@ export default function LanguageSwitcher() {
   }, []);
 
   const changeLanguage = (langCode) => {
+    const lang = languages.find(l => l.code === langCode);
     i18n.changeLanguage(langCode);
-    document.documentElement.dir = langCode === 'ar' ? 'rtl' : 'ltr';
+    localStorage.setItem('i18nextLng', langCode);
+    
+    if (lang?.dir) {
+      document.documentElement.dir = lang.dir;
+    } else {
+      document.documentElement.dir = 'ltr';
+    }
     document.documentElement.lang = langCode;
+    
     setIsOpen(false);
   };
 
@@ -37,13 +55,16 @@ export default function LanguageSwitcher() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+        title="Change Language"
       >
-        <Globe size={18} />
-        <span className="text-sm">{currentLang.flag}</span>
+        <span className="text-lg">{currentLang.flag}</span>
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-40 bg-gray-900 border border-gray-700 rounded-lg shadow-xl overflow-hidden z-50">
+        <div className="absolute right-0 mt-2 w-44 bg-gray-900 border border-gray-700 rounded-lg shadow-xl overflow-hidden z-50">
           {languages.map((lang) => (
             <button
               key={lang.code}

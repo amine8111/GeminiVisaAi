@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Bot, Lock, Smartphone, ArrowRight, Loader2 } from 'lucide-react';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 function Login() {
   const { login } = useAuth();
@@ -21,6 +22,10 @@ function Login() {
 
   return (
     <div className="min-h-screen ai-bg grid-pattern flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
+      
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-3 mb-6">
@@ -53,6 +58,7 @@ function Login() {
                 className="input"
                 placeholder="Enter your mobile number"
                 required
+                autoComplete="tel"
               />
             </div>
 
@@ -68,6 +74,7 @@ function Login() {
                 className="input"
                 placeholder="Enter your password"
                 required
+                autoComplete="current-password"
               />
             </div>
 

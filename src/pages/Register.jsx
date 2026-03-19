@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { Bot, UserPlus, Sparkles, ArrowRight, CheckCircle, Shield, Zap, FileCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Bot, UserPlus, Sparkles, ArrowRight, CheckCircle, Shield, Zap } from 'lucide-react';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 function Register() {
+  const { t } = useTranslation();
   const { register } = useAuth();
   const [formData, setFormData] = useState({
     mobile: '',
@@ -77,9 +80,12 @@ function Register() {
             </div>
             <span className="text-xl font-bold gradient-text">VisaGpt</span>
           </Link>
-          <Link to="/login" className="px-5 py-2 rounded-xl gradient-bg text-white hover:opacity-90 transition-all">
-            Sign In
-          </Link>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <Link to="/login" className="px-5 py-2 rounded-xl gradient-bg text-white hover:opacity-90 transition-all">
+              Sign In
+            </Link>
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
