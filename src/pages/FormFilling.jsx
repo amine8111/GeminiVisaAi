@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FileText, Download, Loader2, CheckCircle, AlertCircle, User, Camera, MapPin, Calendar } from 'lucide-react';
+import { FileText, Download, Loader2, CheckCircle, AlertCircle, User, Camera, MapPin, Calendar, ChevronDown, AlertTriangle } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,8 +13,9 @@ export default function FormFilling() {
   const [generating, setGenerating] = useState(false);
   const [profile, setProfile] = useState(null);
   const [passportPhoto, setPassportPhoto] = useState(null);
-  const [application, setApplication] = useState(null);
+  const [selectedApp, setSelectedApp] = useState(null);
   const [applications, setApplications] = useState([]);
+  const [error, setError] = useState('');
   
   useEffect(() => {
     fetchData();
@@ -33,26 +34,35 @@ export default function FormFilling() {
       if (profileRes.ok) {
         const profileData = await profileRes.json();
         setProfile(profileData);
+        console.log('Profile data:', profileData);
         if (profileData.passport_photo) {
           setPassportPhoto(profileData.passport_photo);
+          console.log('Passport photo found');
         }
+      } else {
+        setError('Could not load profile. Please log in again.');
       }
 
       if (appsRes.ok) {
         const appsData = await appsRes.json();
         setApplications(appsData);
+        console.log('Applications:', appsData);
         if (appsData.length > 0) {
-          setApplication(appsData[0]);
+          setSelectedApp(appsData[0]);
         }
       }
     } catch (err) {
       console.error('Error fetching data:', err);
+      setError('Failed to connect to server. Please try again.');
     }
     setLoading(false);
   };
 
   const generatePDF = async () => {
-    if (!profile) return;
+    if (!profile) {
+      alert('Please complete your profile first');
+      return;
+    }
     
     setGenerating(true);
     
@@ -93,7 +103,8 @@ export default function FormFilling() {
 
       doc.text('Surname (Family Name):', 20, y);
       doc.setFont('helvetica', 'bold');
-      doc.text((profile.last_name || '_______________').toUpperCase(), 55, y);
+      const lastName = profile.last_name || profile.Last_Name || '';
+      doc.text(lastName.toUpperCase() || '_______________', 55, y);
 
       doc.setFont('helvetica', 'normal');
       doc.text('Surname at birth (if different):', 105, y);
@@ -103,18 +114,19 @@ export default function FormFilling() {
       doc.setFont('helvetica', 'normal');
       doc.text('Given Name(s) (First Name):', 20, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(`${profile.first_name || ''} ${profile.middle_name || ''}`.trim() || '_______________', 60, y);
+      const firstName = profile.first_name || profile.First_Name || '';
+      doc.text(firstName || '_______________', 60, y);
 
       y += 7;
       doc.setFont('helvetica', 'normal');
       doc.text('Date of Birth:', 20, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(formatDate(profile.date_of_birth), 45, y);
+      doc.text(formatDate(profile.date_of_birth || profile.dateOfBirth), 45, y);
 
       doc.setFont('helvetica', 'normal');
       doc.text('Place of Birth:', 85, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(profile.place_of_birth || '_______________', 115, y);
+      doc.text(profile.place_of_birth || profile.placeOfBirth || '_______________', 115, y);
 
       y += 7;
       doc.setFont('helvetica', 'normal');
@@ -124,7 +136,7 @@ export default function FormFilling() {
       doc.setFont('helvetica', 'normal');
       doc.text('Marital Status:', 85, y);
       doc.setFont('helvetica', 'bold');
-      const maritalStatus = profile.marital_status || '';
+      const maritalStatus = profile.marital_status || profile.maritalStatus || '';
       doc.text(
         `${maritalStatus === 'Single' ? '☑' : '☐'} Single    ${maritalStatus === 'Married' ? '☑' : '☐'} Married    ${maritalStatus === 'Divorced' ? '☑' : '☐'} Divorced    ${maritalStatus === 'Widowed' ? '☑' : '☐'} Widowed`,
         120, y
@@ -149,25 +161,26 @@ export default function FormFilling() {
       y += 7;
       doc.text('Passport Number:', 20, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(profile.passport_number || '_______________', 50, y);
+      const passportNum = profile.passport_number || profile.passportNumber || '';
+      doc.text(passportNum || '_______________', 50, y);
 
       doc.setFont('helvetica', 'normal');
       doc.text('Issue Date:', 100, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(formatDate(profile.passport_issue_date), 125, y);
+      doc.text(formatDate(profile.passport_issue_date || profile.passportIssueDate), 125, y);
 
       doc.setFont('helvetica', 'normal');
       doc.text('Expiry Date:', 165, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(formatDate(profile.passport_expiry_date), 188, y);
+      doc.text(formatDate(profile.passport_expiry_date || profile.passportExpiryDate), 188, y);
 
       y += 7;
       doc.setFont('helvetica', 'normal');
       doc.text('Issued by:', 20, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(profile.passport_issue_country || '_______________', 40, y);
+      doc.text(profile.passport_issue_country || profile.passportIssueCountry || '_______________', 40, y);
 
-      if (application) {
+      if (selectedApp) {
         y += 12;
         doc.setTextColor(0, 26, 77);
         doc.setFontSize(11);
@@ -183,7 +196,7 @@ export default function FormFilling() {
 
         doc.text('Purpose of Travel:', 20, y);
         doc.setFont('helvetica', 'bold');
-        doc.text((application.purpose_of_travel || '_______________').toUpperCase(), 55, y);
+        doc.text((selectedApp.purpose_of_travel || selectedApp.purposeOfTravel || '_______________').toUpperCase(), 55, y);
 
         y += 7;
         doc.setFont('helvetica', 'normal');
@@ -193,24 +206,24 @@ export default function FormFilling() {
         y += 7;
         doc.text('Intended Date of Arrival:', 20, y);
         doc.setFont('helvetica', 'bold');
-        doc.text(formatDate(application.intended_travel_start), 70, y);
+        doc.text(formatDate(selectedApp.intended_travel_start || selectedApp.intendedTravelStart), 70, y);
 
         doc.setFont('helvetica', 'normal');
         doc.text('Intended Date of Departure:', 115, y);
         doc.setFont('helvetica', 'bold');
-        doc.text(formatDate(application.intended_travel_end), 172, y);
+        doc.text(formatDate(selectedApp.intended_travel_end || selectedApp.intendedTravelEnd), 172, y);
 
         y += 7;
         doc.setFont('helvetica', 'normal');
         doc.text('Main Destination (Country):', 20, y);
         doc.setFont('helvetica', 'bold');
-        doc.text((application.destination_country || '_______________').toUpperCase(), 75, y);
+        doc.text((selectedApp.destination_country || selectedApp.destinationCountry || '_______________').toUpperCase(), 75, y);
 
         y += 7;
         doc.setFont('helvetica', 'normal');
         doc.text('Country of First Entry:', 20, y);
         doc.setFont('helvetica', 'bold');
-        doc.text((application.destination_country || '_______________').toUpperCase(), 68, y);
+        doc.text((selectedApp.destination_country || selectedApp.destinationCountry || '_______________').toUpperCase(), 68, y);
       }
 
       y += 12;
@@ -232,12 +245,14 @@ export default function FormFilling() {
       y += 7;
       doc.text('Monthly Income:', 20, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(`€ ${((profile.monthly_income || 0) * 0.92).toFixed(2)}`, 50, y);
+      const monthlyIncome = profile.monthly_income || profile.monthlyIncome || 0;
+      doc.text(`€ ${(monthlyIncome * 0.92).toFixed(2)}`, 50, y);
 
       doc.setFont('helvetica', 'normal');
       doc.text('Bank Balance (6 mo avg):', 105, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(`€ ${((profile.bank_balance_avg_6m || 0) * 0.92).toFixed(2)}`, 155, y);
+      const bankBalance = profile.bank_balance_avg_6m || profile.bankBalance || 0;
+      doc.text(`€ ${(bankBalance * 0.92).toFixed(2)}`, 155, y);
 
       y += 12;
       doc.setTextColor(0, 26, 77);
@@ -254,19 +269,19 @@ export default function FormFilling() {
 
       doc.text('Employment Status:', 20, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(profile.employment_status || '_______________', 55, y);
+      doc.text(profile.employment_status || profile.employmentStatus || '_______________', 55, y);
 
       y += 7;
       doc.setFont('helvetica', 'normal');
       doc.text('Company/Employer:', 20, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(profile.company_name || '_______________', 60, y);
+      doc.text(profile.company_name || profile.companyName || '_______________', 60, y);
 
       y += 7;
       doc.setFont('helvetica', 'normal');
       doc.text('Job Title:', 20, y);
       doc.setFont('helvetica', 'bold');
-      doc.text(profile.job_title || '_______________', 45, y);
+      doc.text(profile.job_title || profile.jobTitle || '_______________', 45, y);
 
       y += 15;
 
@@ -300,7 +315,7 @@ export default function FormFilling() {
 
       doc.setFont('helvetica', 'normal');
       doc.text('This document was prepared using AI-assisted visa eligibility analysis', 20, y + 6);
-      doc.text('Application ID: ' + (application?.id || 'N/A') + ' | Probability: ' + (application?.success_probability || 'N/A') + '%', 20, y + 12);
+      doc.text('Application ID: ' + (selectedApp?.id || 'N/A') + ' | Probability: ' + (selectedApp?.success_probability || selectedApp?.successProbability || 'N/A') + '%', 20, y + 12);
 
       if (passportPhoto) {
         try {
@@ -323,16 +338,19 @@ export default function FormFilling() {
           doc.setTextColor(0, 0, 0);
           doc.setFontSize(9);
           doc.setFont('helvetica', 'normal');
-          doc.text(`${profile.first_name || ''} ${profile.last_name || ''}`.trim(), x + 5, imgY + imgWidth + 10);
+          doc.text(`${firstName} ${lastName}`.trim(), x + 5, imgY + imgWidth + 10);
         } catch (imgErr) {
           console.error('Error adding photo:', imgErr);
         }
       }
 
-      doc.save(`Schengen_Application_${profile.last_name || 'User'}_${new Date().toISOString().split('T')[0]}.pdf`);
+      const fileName = `Schengen_Application_${lastName || 'User'}_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(fileName);
+      console.log('PDF generated successfully:', fileName);
       
     } catch (err) {
       console.error('Error generating PDF:', err);
+      alert('Error generating PDF. Please try again.');
     }
     
     setGenerating(false);
@@ -359,12 +377,29 @@ export default function FormFilling() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen ai-bg flex items-center justify-center">
+        <div className="glass-card rounded-3xl p-8 max-w-md text-center">
+          <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-white mb-2">Error</h2>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <button onClick={() => navigate('/login')} className="btn-primary">
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const missingFields = [];
-  if (!profile?.first_name) missingFields.push(t('profile.firstName'));
-  if (!profile?.last_name) missingFields.push(t('profile.lastName'));
-  if (!profile?.date_of_birth) missingFields.push(t('profile.dateOfBirth'));
-  if (!profile?.passport_number) missingFields.push(t('formFilling.passportNumber'));
+  if (!profile?.first_name && !profile?.First_Name) missingFields.push(t('profile.firstName'));
+  if (!profile?.last_name && !profile?.Last_Name) missingFields.push(t('profile.lastName'));
+  if (!profile?.date_of_birth && !profile?.dateOfBirth) missingFields.push(t('profile.dateOfBirth'));
+  if (!profile?.passport_number && !profile?.passportNumber) missingFields.push(t('formFilling.passportNumber'));
   if (!passportPhoto) missingFields.push(t('formFilling.passportPhoto'));
+
+  const profileComplete = missingFields.length === 0;
 
   return (
     <div className="min-h-screen ai-bg grid-pattern pt-24 pb-12 px-4">
@@ -373,6 +408,51 @@ export default function FormFilling() {
           <h1 className="text-3xl font-bold gradient-text mb-2">{t('formFilling.title')}</h1>
           <p className="text-gray-400">{t('formFilling.subtitle')}</p>
         </div>
+
+        {missingFields.length > 0 && (
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-yellow-500 font-medium mb-1">{t('formFilling.missingInfo')}</p>
+                <p className="text-gray-400 text-sm mb-2">{t('formFilling.missingFields')}</p>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {missingFields.map((field) => (
+                    <span key={field} className="px-2 py-1 bg-yellow-500/20 rounded text-yellow-400 text-xs">
+                      {field}
+                    </span>
+                  ))}
+                </div>
+                <button 
+                  onClick={() => navigate('/profile')}
+                  className="text-yellow-500 text-sm hover:underline"
+                >
+                  {t('formFilling.updateProfile')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {applications.length === 0 && (
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-blue-500 font-medium mb-1">No Application Found</p>
+                <p className="text-gray-400 text-sm mb-3">
+                  You need to create an application first. Go to AI Eligibility Assessment to create one.
+                </p>
+                <button 
+                  onClick={() => navigate('/eligibility-test')}
+                  className="text-blue-500 text-sm hover:underline"
+                >
+                  Go to Eligibility Assessment →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="glass-card rounded-3xl p-8 glow">
           <div className="flex items-center gap-4 mb-6">
@@ -385,45 +465,25 @@ export default function FormFilling() {
             </div>
           </div>
 
-          {missingFields.length > 0 && (
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-yellow-500 font-medium mb-1">{t('formFilling.missingInfo')}</p>
-                  <p className="text-gray-400 text-sm">{t('formFilling.missingFields')}</p>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {missingFields.map((field) => (
-                      <span key={field} className="px-2 py-1 bg-yellow-500/20 rounded text-yellow-400 text-xs">
-                        {field}
-                      </span>
-                    ))}
-                  </div>
-                  <button 
-                    onClick={() => navigate('/profile')}
-                    className="mt-3 text-yellow-500 text-sm hover:underline"
-                  >
-                    {t('formFilling.updateProfile')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
           <div className="space-y-4 mb-6">
             <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-xl">
               <User className="w-5 h-5 text-purple-400" />
               <div className="flex-1">
                 <p className="text-gray-400 text-xs">{t('formFilling.name')}</p>
-                <p className="text-white">{profile?.first_name || '—'} {profile?.last_name || '—'}</p>
+                <p className="text-white">{(profile?.first_name || profile?.First_Name) || '—'} {(profile?.last_name || profile?.Last_Name) || '—'}</p>
               </div>
+              {profile?.first_name || profile?.First_Name ? (
+                <CheckCircle className="w-5 h-5 text-green-500" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-yellow-500" />
+              )}
             </div>
 
             <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-xl">
               <Calendar className="w-5 h-5 text-cyan-400" />
               <div className="flex-1">
                 <p className="text-gray-400 text-xs">{t('formFilling.dateOfBirth')}</p>
-                <p className="text-white">{formatDate(profile?.date_of_birth)}</p>
+                <p className="text-white">{formatDate(profile?.date_of_birth || profile?.dateOfBirth)}</p>
               </div>
             </div>
 
@@ -431,8 +491,13 @@ export default function FormFilling() {
               <MapPin className="w-5 h-5 text-pink-400" />
               <div className="flex-1">
                 <p className="text-gray-400 text-xs">{t('formFilling.passportNumber')}</p>
-                <p className="text-white">{profile?.passport_number || '—'}</p>
+                <p className="text-white">{profile?.passport_number || profile?.passportNumber || '—'}</p>
               </div>
+              {profile?.passport_number || profile?.passportNumber ? (
+                <CheckCircle className="w-5 h-5 text-green-500" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-yellow-500" />
+              )}
             </div>
 
             <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-xl">
@@ -453,25 +518,50 @@ export default function FormFilling() {
             </div>
           </div>
 
-          {application && (
+          {applications.length > 0 && (
+            <div className="mb-6">
+              <label className="label mb-2">Select Application</label>
+              <div className="relative">
+                <select 
+                  value={selectedApp?.id || ''}
+                  onChange={(e) => {
+                    const app = applications.find(a => a.id === parseInt(e.target.value));
+                    setSelectedApp(app);
+                  }}
+                  className="input appearance-none pr-10"
+                >
+                  {applications.map((app) => (
+                    <option key={app.id} value={app.id}>
+                      {app.destination_country || app.destinationCountry} - {app.purpose_of_travel || app.purposeOfTravel}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+              </div>
+            </div>
+          )}
+
+          {selectedApp && (
             <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-6">
               <p className="text-purple-400 text-sm font-medium mb-2">{t('formFilling.applicationDetails')}</p>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-gray-400">{t('formFilling.destination')}</p>
-                  <p className="text-white">{application.destination_country}</p>
+                  <p className="text-white">{selectedApp.destination_country || selectedApp.destinationCountry}</p>
                 </div>
                 <div>
                   <p className="text-gray-400">{t('formFilling.purpose')}</p>
-                  <p className="text-white">{application.purpose_of_travel}</p>
+                  <p className="text-white">{selectedApp.purpose_of_travel || selectedApp.purposeOfTravel}</p>
                 </div>
                 <div>
                   <p className="text-gray-400">{t('formFilling.travelDates')}</p>
-                  <p className="text-white">{formatDate(application.intended_travel_start)} - {formatDate(application.intended_travel_end)}</p>
+                  <p className="text-white">
+                    {formatDate(selectedApp.intended_travel_start || selectedApp.intendedTravelStart)} - {formatDate(selectedApp.intended_travel_end || selectedApp.intendedTravelEnd)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-400">{t('formFilling.probabilityScore')}</p>
-                  <p className="text-white">{application.success_probability || '—'}%</p>
+                  <p className="text-white">{selectedApp.success_probability || selectedApp.successProbability || '—'}%</p>
                 </div>
               </div>
             </div>
@@ -479,8 +569,8 @@ export default function FormFilling() {
 
           <button
             onClick={generatePDF}
-            disabled={generating}
-            className="w-full btn-primary flex items-center justify-center gap-2 glow-button"
+            disabled={generating || !profileComplete}
+            className={`w-full btn-primary flex items-center justify-center gap-2 glow-button ${!profileComplete ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {generating ? (
               <>
