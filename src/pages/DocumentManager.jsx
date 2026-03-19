@@ -81,6 +81,27 @@ function DocumentManager() {
   };
 
   const startCamera = async () => {
+    // Try using file input as alternative (works on more devices)
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setCapturedImages(prev => [...prev, reader.result]);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    
+    input.click();
+  };
+
+  const openCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment' } 
@@ -89,7 +110,8 @@ function DocumentManager() {
       setCameraActive(true);
       setScanning(true);
     } catch (error) {
-      alert('Could not access camera. Please ensure camera permissions are granted.\n\nNote: Camera requires HTTPS. If using localhost, it will work. On deployed site, ensure camera permissions are allowed in browser settings.');
+      // Fallback to file input
+      startCamera();
     }
   };
 
@@ -156,14 +178,108 @@ function DocumentManager() {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
+  // PDF Form State
+  const [pdfFormData, setPdfFormData] = useState({
+    application_id: '',
+    document_type: 'Schengen Form'
+  });
+  const [pdfGenerating, setPdfGenerating] = useState(false);
+  const [pdfApplications, setPdfApplications] = useState([]);
+  const [applicationList, setApplicationList] = useState([]);
+
+  useEffect(() => {
+    fetchApplicationsForPdf();
+  }, []);
+
+  const fetchApplicationsForPdf = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/applications`, {
+        headers: { ...getAuthHeaders() }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setApplicationList(data);
+      }
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+    }
+  };
+
+  const generatePdfForm = async () => {
+    if (!pdfFormData.application_id) {
+      alert('Please select an application first');
+      return;
+    }
+    setPdfGenerating(true);
+    try {
+      const response = await fetch(`${API_URL}/api/generate-schengen-form/${pdfFormData.application_id}`, {
+        headers: getAuthHeaders()
+      });
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `schengen_visa_form_${pdfFormData.application_id}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      alert('Failed to generate PDF');
+    }
+    setPdfGenerating(false);
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Document Manager</h1>
-            <p className="text-gray-600">Track and scan your visa documents</p>
+    <div className="min-h-screen ai-bg grid-pattern py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold gradient-text">Document Manager</h1>
+          <p className="text-gray-400">Scan, upload, and manage your visa documents</p>
+        </div>
+
+        {/* PDF Form Filling Section */}
+        <div className="glass-card rounded-2xl p-6 glow mb-6">
+          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-cyan-400" />
+            Generate Pre-Filled Visa Form
+          </h2>
+          <p className="text-gray-400 text-sm mb-4">
+            Select your visa application to generate a pre-filled Schengen visa application form.
+          </p>
+          
+          <div className="flex flex-col md:flex-row gap-4 items-end">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-300 mb-1">Select Application</label>
+              <select 
+                className="w-full px-3 py-2 rounded-lg"
+                value={pdfFormData.application_id}
+                onChange={(e) => setPdfFormData({...pdfFormData, application_id: e.target.value})}
+              >
+                <option value="">Select an application...</option>
+                {applicationList.map(app => (
+                  <option key={app.id} value={app.id}>
+                    {app.destination_country} - {app.purpose_of_travel} ({app.intended_travel_start})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button 
+              onClick={generatePdfForm}
+              disabled={pdfGenerating || !pdfFormData.application_id}
+              className="btn-primary glow-button rounded-lg"
+            >
+              {pdfGenerating ? 'Generating...' : 'Download PDF Form'}
+            </button>
           </div>
+        </div>
+
+        <div className="flex justify-between items-center mb-6">
           <div className="flex gap-2">
             <button 
               onClick={() => { setShowScanner(true); startCamera(); }}
