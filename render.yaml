@@ -6,11 +6,11 @@ services:
     rootDir: backend
     runtime: python311
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn run:app
+    startCommand: gunicorn "app:create_app()"
     envVars:
       - key: DATABASE_URL
         value: postgresql://visaai:XTo3cmnd3tclrEMm6naYKYHWB7FrQ3Pr@dpg-d6tr89paae7s73e49660-a/visaai
       - key: SECRET_KEY
         value: gemini-visa-ai-secret-key-2024
       - key: FRONTEND_URL
-        value: https://celebrated-peony-c7923a.netlify.app
+        value: https://visa-ai-one.vercel.app
