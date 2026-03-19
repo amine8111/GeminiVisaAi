@@ -15,22 +15,7 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     migrate.init_app(app, db)
-    cors.init_app(
-        app,
-        resources={
-            r"/api/*": {
-                "origins": [
-                    "http://localhost:5173",
-                    "http://127.0.0.1:5173",
-                    "http://localhost:3000",
-                    "https://celebrated-peony-c7923a.netlify.app",
-                    "https://*.netlify.app",
-                    "https://gemini-visa-ai.vercel.app",
-                    "https://*.vercel.app",
-                ]
-            }
-        },
-    )
+    cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
 
     from app import routes
 

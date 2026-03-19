@@ -18,6 +18,7 @@ export default function Navbar() {
     { path: '/dashboard', label: 'Dashboard', icon: Home },
     { path: '/profile', label: 'Profile', icon: User },
     { path: '/eligibility-test', label: 'Eligibility Test', icon: Clipboard },
+    { path: '/simulator', label: 'Simulator', icon: Clipboard },
     { path: '/applications', label: 'Applications', icon: FolderOpen },
     { path: '/documents', label: 'Documents', icon: FileText },
   ];

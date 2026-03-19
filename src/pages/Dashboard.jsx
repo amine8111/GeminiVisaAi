@@ -12,18 +12,18 @@ function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-indigo-600 text-white py-12">
+    <div className="min-h-screen bg-navy-900 pt-20">
+      <div className="gradient-bg text-white py-12">
         <div className="max-w-6xl mx-auto px-4">
           <h1 className="text-4xl font-bold">Welcome to GeminiVisaAI</h1>
-          <p className="mt-2 text-lg">Your intelligent visa application assistant</p>
+          <p className="mt-2 text-lg text-white/80">Your intelligent visa application assistant</p>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-800">Hello, {user?.email || user?.mobile}!</h2>
-          <p className="text-gray-600 mt-2">Manage your visa applications, check eligibility, and track documents all in one place.</p>
+        <div className="card p-6 mb-6">
+          <h2 className="text-xl font-semibold text-white">Hello, {user?.email || user?.mobile}!</h2>
+          <p className="text-gray-400 mt-2">Manage your visa applications, check eligibility, and track documents all in one place.</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -31,22 +31,22 @@ function Dashboard() {
             <Link
               key={index}
               to={item.link}
-              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-l-4 border-indigo-500"
+              className="card p-6 hover:border-neon-purple/50 transition-all border-l-4 border-l-neon-purple"
             >
               <div className="flex items-start">
                 <span className="text-3xl mr-4">{item.icon}</span>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800">{item.title}</h3>
-                  <p className="text-gray-600 mt-1">{item.description}</p>
+                  <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                  <p className="text-gray-400 mt-1">{item.description}</p>
                 </div>
               </div>
             </Link>
           ))}
         </div>
 
-        <div className="mt-8 bg-blue-50 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-800">Quick Tips</h3>
-          <ul className="mt-3 space-y-2 text-blue-700">
+        <div className="mt-8 card p-6 border-l-4 border-l-cyan-400">
+          <h3 className="text-lg font-semibold text-cyan-400">Quick Tips</h3>
+          <ul className="mt-3 space-y-2 text-gray-400">
             <li>• Complete your profile with accurate information for better eligibility results</li>
             <li>• Upload clear scans of your documents for faster processing</li>
             <li>• Check your eligibility before applying to improve your chances</li>

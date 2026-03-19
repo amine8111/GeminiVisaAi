@@ -17,7 +17,7 @@ export default function Splash() {
 
   useEffect(() => {
     if (!showSplash && !loading) {
-      navigate(user ? '/home' : '/auth', { replace: true });
+      navigate(user ? '/dashboard' : '/login', { replace: true });
     }
   }, [showSplash, loading, user, navigate]);
 

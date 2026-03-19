@@ -19,21 +19,15 @@ function DocumentManager() {
   const [showScanner, setShowScanner] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [capturedImages, setCapturedImages] = useState([]);
-  const [scanning, setScanning] = useState(false);
   const videoRef = useRef(null);
 
-  useEffect(() => {
-    fetchDocuments();
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks();
-        tracks.forEach(track => track.stop());
-      }
-    };
-  }, []);
+  // PDF Form State
+  const [pdfFormData, setPdfFormData] = useState({
+    application_id: '',
+    document_type: 'Schengen Form'
+  });
+  const [pdfGenerating, setPdfGenerating] = useState(false);
+  const [applicationList, setApplicationList] = useState([]);
 
   const fetchDocuments = async () => {
     try {
@@ -44,11 +38,39 @@ function DocumentManager() {
         const data = await response.json();
         setDocuments(data);
       }
-    } catch (error) {
-      console.error('Error fetching documents:', error);
+    } catch (err) {
+      console.error('Error fetching documents:', err);
     }
     setLoading(false);
   };
+
+  const fetchApplicationsForPdf = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/applications`, {
+        headers: { ...getAuthHeaders() }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setApplicationList(data);
+      }
+    } catch (err) {
+      console.error('Error fetching applications:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocuments();
+    fetchApplicationsForPdf();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = videoRef.current.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+      }
+    };
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -74,14 +96,13 @@ function DocumentManager() {
       } else {
         setMessage('Failed to save document');
       }
-    } catch (error) {
+    } catch (err) {
       setMessage('Error saving document');
     }
     setSaving(false);
   };
 
   const startCamera = async () => {
-    // Try using file input as alternative (works on more devices)
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -101,27 +122,12 @@ function DocumentManager() {
     input.click();
   };
 
-  const openCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
-      });
-      videoRef.current.srcObject = stream;
-      setCameraActive(true);
-      setScanning(true);
-    } catch (error) {
-      // Fallback to file input
-      startCamera();
-    }
-  };
-
   const stopCamera = () => {
     if (videoRef.current && videoRef.current.srcObject) {
       const tracks = videoRef.current.srcObject.getTracks();
       tracks.forEach(track => track.stop());
     }
     setCameraActive(false);
-    setScanning(false);
   };
 
   const capturePhoto = () => {
@@ -149,7 +155,6 @@ function DocumentManager() {
     setSaving(true);
     const fileName = `scanned_doc_${new Date().getTime()}.jpg`;
     
-    // Save the first image as a sample (in real app, would create PDF)
     try {
       const response = await fetch(`${API_URL}/api/documents/upload`, {
         method: 'POST',
@@ -168,41 +173,10 @@ function DocumentManager() {
         setShowScanner(false);
         fetchDocuments();
       }
-    } catch (error) {
+    } catch (err) {
       setMessage('Error saving scanned document');
     }
     setSaving(false);
-  };
-
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
-  // PDF Form State
-  const [pdfFormData, setPdfFormData] = useState({
-    application_id: '',
-    document_type: 'Schengen Form'
-  });
-  const [pdfGenerating, setPdfGenerating] = useState(false);
-  const [pdfApplications, setPdfApplications] = useState([]);
-  const [applicationList, setApplicationList] = useState([]);
-
-  useEffect(() => {
-    fetchApplicationsForPdf();
-  }, []);
-
-  const fetchApplicationsForPdf = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/applications`, {
-        headers: { ...getAuthHeaders() }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setApplicationList(data);
-      }
-    } catch (error) {
-      console.error('Error fetching applications:', error);
-    }
   };
 
   const generatePdfForm = async () => {
@@ -225,14 +199,18 @@ function DocumentManager() {
         a.click();
         window.URL.revokeObjectURL(url);
       }
-    } catch (error) {
+    } catch (err) {
       alert('Failed to generate PDF');
     }
     setPdfGenerating(false);
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="min-h-screen ai-bg grid-pattern pt-20 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-neon-purple border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   return (

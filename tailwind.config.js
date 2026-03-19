@@ -20,6 +20,9 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
+      backgroundImage: {
+        'gradient-bg': 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+      },
     },
   },
   plugins: [],

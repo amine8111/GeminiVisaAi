@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const API_URL = 'https://geminivisaai.onrender.com';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);

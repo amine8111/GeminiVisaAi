@@ -325,3 +325,16 @@ input:focus, select:focus, textarea:focus {
     linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
 }
+
+/* Form components */
+.label {
+  @apply block text-sm font-medium text-gray-300 mb-1;
+}
+
+.input {
+  @apply w-full px-4 py-3 rounded-lg bg-navy-800 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500;
+}
+
+.card {
+  @apply bg-navy-800 rounded-xl p-6 border border-white/10;
+}
