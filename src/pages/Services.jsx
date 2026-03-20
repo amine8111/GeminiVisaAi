@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { Shield, FileText, Upload, Download, Globe, Clock, CreditCard, CheckCircle, AlertCircle, Loader2, ChevronDown, FileUp, Calculator, Mail } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import FinancialProofPlanner from '../components/FinancialProofPlanner';
@@ -7,7 +8,16 @@ import LetterGenerator from '../components/LetterGenerator';
 
 export default function Services() {
   const { t, i18n } = useTranslation();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('insurance');
+  
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab && ['insurance', 'translation', 'financial', 'letters'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [location.search]);
   const [insuranceLoading, setInsuranceLoading] = useState(false);
   const [translationLoading, setTranslationLoading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -128,36 +138,53 @@ export default function Services() {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.text('TRANSLATED DOCUMENT', 20, 18);
+    doc.text('TRANSLATION SERVICE - COMING SOON', 20, 18);
     
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Original: ${translatedFile.originalName}`, 20, 26);
-    doc.text(`Translated to: ${translatedFile.language}`, 120, 26);
+    doc.text(`Original File: ${translatedFile.originalName}`, 20, 26);
+    doc.text(`Requested Translation: ${translatedFile.language}`, 120, 26);
     
     doc.setTextColor(0, 0, 0);
-    doc.setFontSize(11);
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('VISA GPT - AI TRANSLATION SERVICE', 20, 50);
+    doc.text('IMPORTANT NOTICE', 20, 55);
     
-    doc.setFontSize(10);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
-    doc.text('This document has been translated using AI-powered translation.', 20, 60);
-    doc.text('Original content has been accurately translated to ' + translatedFile.language + '.', 20, 68);
-    doc.text('The translated document maintains the formatting and structure of the original.', 20, 76);
+    
+    const notice = [
+      'This feature is currently under development.',
+      '',
+      'PDF document translation will be available soon!',
+      '',
+      'In the meantime, please use our Official Translation service',
+      'for certified translations that are accepted by embassies.',
+      '',
+      'Official Translation Service:',
+      '- Professional certified translators',
+      '- Accepted by all Schengen embassies',
+      '- €15 per page',
+      '- 24-hour delivery',
+      '',
+      'To request an Official Translation, please use the',
+      '"Official Translation" option in this section.'
+    ];
+    
+    let y = 70;
+    notice.forEach(line => {
+      doc.text(line, 20, y);
+      y += 8;
+    });
     
     doc.setDrawColor(200, 200, 200);
-    doc.line(20, 85, pageWidth - 20, 85);
-    
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text('Note: This is an AI-generated translation. For official purposes,', 20, 95);
-    doc.text('please use our Official Translation service with certified translators.', 20, 102);
+    doc.line(20, y + 5, pageWidth - 20, y + 5);
     
     doc.setFontSize(8);
-    doc.text(`Generated: ${new Date().toLocaleDateString()} - VisaGpt Translation Service`, 20, 270);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Requested: ${new Date().toLocaleDateString()} - VisaGpt Translation Service`, 20, y + 20);
     
-    const filename = translatedFile.name;
+    const filename = `Translation_Request_${translatedFile.originalName.replace('.pdf', '')}.pdf`;
     doc.save(filename);
   };
 
@@ -475,16 +502,22 @@ export default function Services() {
                 
                 {translatedFile ? (
                   <div className="text-center py-8">
-                    <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle className="w-10 h-10 text-green-400" />
+                    <div className="w-20 h-20 rounded-full bg-yellow-500/20 flex items-center justify-center mx-auto mb-4">
+                      <Clock className="w-10 h-10 text-yellow-400" />
                     </div>
-                    <h4 className="text-white font-semibold mb-2">Translation Complete!</h4>
+                    <h4 className="text-white font-semibold mb-2">Translation Request Received!</h4>
                     <p className="text-gray-400 text-sm mb-4">
-                      Translated to {translatedFile.language}
+                      Your translation to {translatedFile.language} has been queued.
                     </p>
+                    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-4 text-left">
+                      <p className="text-yellow-400 text-sm font-semibold mb-2">Coming Soon</p>
+                      <p className="text-gray-400 text-xs">
+                        PDF translation feature is launching soon. For now, use our Official Translation service for certified translations accepted by embassies.
+                      </p>
+                    </div>
                     <button onClick={downloadTranslatedPDF} className="btn-primary flex items-center gap-2 mx-auto">
                       <Download className="w-5 h-5" />
-                      Download Translated PDF
+                      Download Request Details
                     </button>
                   </div>
                 ) : (
