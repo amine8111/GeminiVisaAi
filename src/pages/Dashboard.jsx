@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Target, FileText, Clipboard, FolderOpen, Sparkles, TrendingUp, FileSignature, Shield, Globe, Calculator, Mail } from 'lucide-react';
+import { Target, FileText, Clipboard, FolderOpen, Sparkles, TrendingUp, FileSignature, Shield, Globe, Calculator, Mail, Camera, Search, Plane, ShieldCheck, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 function Dashboard() {
@@ -21,6 +21,11 @@ function Dashboard() {
     { title: 'Document Translation', description: 'AI-powered or certified translations', link: '/services?tab=translation', icon: Globe, color: 'from-purple-500 to-pink-500', price: 'Free - €15/page' },
     { title: 'Financial Planner', description: 'Calculate required funds for your visa', link: '/services?tab=financial', icon: Calculator, color: 'from-green-500 to-emerald-500', price: 'Free' },
     { title: 'Letter Generator', description: 'Cover, employer, and invitation letters', link: '/services?tab=letters', icon: Mail, color: 'from-orange-500 to-yellow-500', price: 'Free' },
+    { title: 'Appointment Tracker', description: 'Monitor VFS/TLS websites for open slots', link: '/services?tab=appointment', icon: Search, color: 'from-red-500 to-rose-500', price: 'Free' },
+    { title: 'Refusal Analyzer', description: 'OCR analysis & appeal letter generator', link: '/services?tab=refusal', icon: AlertCircle, color: 'from-gray-600 to-gray-800', price: 'Free' },
+    { title: 'Dummy Booking', description: 'Temporary verifiable reservations', link: '/services?tab=booking', icon: Plane, color: 'from-indigo-500 to-blue-500', price: '2,000 DZD' },
+    { title: 'Photo Validator', description: 'ICAO standard photo processing', link: '/services?tab=photo', icon: Camera, color: 'from-cyan-500 to-teal-500', price: 'Free' },
+    { title: 'Anti-Scam Directory', description: 'Verified agencies & translators in Algeria', link: '/services?tab=directory', icon: ShieldCheck, color: 'from-yellow-500 to-amber-500', price: 'Free' },
   ];
 
   return (

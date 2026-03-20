@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import { Shield, FileText, Upload, Download, Globe, Clock, CreditCard, CheckCircle, AlertCircle, Loader2, ChevronDown, FileUp, Calculator, Mail } from 'lucide-react';
+import { Shield, FileText, Upload, Download, Globe, Clock, CreditCard, CheckCircle, AlertCircle, Loader2, ChevronDown, FileUp, Calculator, Mail, Camera, Search, Plane, ShieldCheck } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import FinancialProofPlanner from '../components/FinancialProofPlanner';
 import LetterGenerator from '../components/LetterGenerator';
+import AppointmentTracker from '../components/AppointmentTracker';
+import RefusalAnalyzer from '../components/RefusalAnalyzer';
+import DummyBooking from '../components/DummyBooking';
+import PhotoValidator from '../components/PhotoValidator';
+import AntiScamDirectory from '../components/AntiScamDirectory';
 
 export default function Services() {
   const { t, i18n } = useTranslation();
@@ -14,7 +19,7 @@ export default function Services() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tab = params.get('tab');
-    if (tab && ['insurance', 'translation', 'financial', 'letters'].includes(tab)) {
+    if (tab && ['insurance', 'translation', 'financial', 'letters', 'appointment', 'refusal', 'booking', 'photo', 'directory'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [location.search]);
@@ -197,7 +202,7 @@ export default function Services() {
         </div>
 
         <div className="flex justify-center mb-8 overflow-x-auto">
-          <div className="inline-flex bg-gray-800/50 rounded-xl p-1 gap-1">
+          <div className="inline-flex bg-gray-800/50 rounded-xl p-1 gap-1 flex-wrap">
             <button
               onClick={() => setActiveTab('insurance')}
               className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap ${
@@ -229,7 +234,7 @@ export default function Services() {
               }`}
             >
               <Calculator size={18} />
-              <span>Financial Planner</span>
+              <span>Financial</span>
             </button>
             <button
               onClick={() => setActiveTab('letters')}
@@ -240,7 +245,62 @@ export default function Services() {
               }`}
             >
               <Mail size={18} />
-              <span>Letter Generator</span>
+              <span>Letters</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('appointment')}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'appointment' 
+                  ? 'bg-gradient-to-r from-red-500 to-rose-500 text-white' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Search size={18} />
+              <span>Appointments</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('refusal')}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'refusal' 
+                  ? 'bg-gradient-to-r from-gray-600 to-gray-800 text-white' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <AlertCircle size={18} />
+              <span>Refusal Help</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('booking')}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'booking' 
+                  ? 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Plane size={18} />
+              <span>Bookings</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('photo')}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'photo' 
+                  ? 'bg-gradient-to-r from-cyan-500 to-teal-500 text-white' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Camera size={18} />
+              <span>Photo</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('directory')}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'directory' 
+                  ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <ShieldCheck size={18} />
+              <span>Directory</span>
             </button>
           </div>
         </div>
@@ -557,6 +617,16 @@ export default function Services() {
         {activeTab === 'financial' && <FinancialProofPlanner />}
 
         {activeTab === 'letters' && <LetterGenerator />}
+
+        {activeTab === 'appointment' && <AppointmentTracker />}
+
+        {activeTab === 'refusal' && <RefusalAnalyzer />}
+
+        {activeTab === 'booking' && <DummyBooking />}
+
+        {activeTab === 'photo' && <PhotoValidator />}
+
+        {activeTab === 'directory' && <AntiScamDirectory />}
       </div>
     </div>
   );
