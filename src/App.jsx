@@ -51,14 +51,41 @@ function AppRoutes() {
     );
   }
   
+  if (!user) {
+    return (
+      <>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/splash" element={<Splash />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/eligibility-test" element={<Navigate to="/login" replace />} />
+          <Route path="/profile" element={<Navigate to="/login" replace />} />
+          <Route path="/profile/update" element={<Navigate to="/login" replace />} />
+          <Route path="/dashboard" element={<Navigate to="/login" replace />} />
+          <Route path="/applications" element={<Navigate to="/login" replace />} />
+          <Route path="/documents" element={<Navigate to="/login" replace />} />
+          <Route path="/documents/manage" element={<Navigate to="/login" replace />} />
+          <Route path="/processing" element={<Navigate to="/login" replace />} />
+          <Route path="/results" element={<Navigate to="/login" replace />} />
+          <Route path="/simulator" element={<Navigate to="/login" replace />} />
+          <Route path="/form-filling" element={<Navigate to="/login" replace />} />
+          <Route path="/services" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </>
+    );
+  }
+  
   return (
     <>
-      {user && <Navbar />}
+      <Navbar />
       <Routes>
-        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Home />} />
-        <Route path="/splash" element={<Splash />} />
-        <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
-        <Route path="/register" element={user ? <Navigate to="/dashboard" replace /> : <Register />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/splash" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/register" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/profile/update" element={<ProtectedRoute><ProfileUpdate /></ProtectedRoute>} />
@@ -71,7 +98,7 @@ function AppRoutes() {
         <Route path="/simulator" element={<ProtectedRoute><Simulator /></ProtectedRoute>} />
         <Route path="/form-filling" element={<ProtectedRoute><FormFilling /></ProtectedRoute>} />
         <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </>
   );
