@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Target, FileText, Clipboard, FolderOpen, Sparkles, TrendingUp, FileSignature } from 'lucide-react';
+import { Target, FileText, Clipboard, FolderOpen, Sparkles, TrendingUp, FileSignature, Shield, Globe, Calculator, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 function Dashboard() {
@@ -14,6 +14,13 @@ function Dashboard() {
     { title: t('dashboard.formFilling.title'), description: t('dashboard.formFilling.description'), link: '/form-filling', icon: FileSignature, color: 'from-indigo-500 to-purple-500' },
     { title: t('dashboard.myApplications.title'), description: t('dashboard.myApplications.description'), link: '/applications', icon: FolderOpen, color: 'from-orange-500 to-yellow-500' },
     { title: t('dashboard.profileManagement.title'), description: t('dashboard.profileManagement.description'), link: '/profile', icon: Clipboard, color: 'from-red-500 to-pink-500' },
+  ];
+
+  const servicesItems = [
+    { title: 'Travel Insurance', description: 'Get EU-compliant travel insurance for your visa', link: '/services?tab=insurance', icon: Shield, color: 'from-blue-500 to-cyan-500', price: 'From €25' },
+    { title: 'Document Translation', description: 'AI-powered or certified translations', link: '/services?tab=translation', icon: Globe, color: 'from-purple-500 to-pink-500', price: 'Free - €15/page' },
+    { title: 'Financial Planner', description: 'Calculate required funds for your visa', link: '/services?tab=financial', icon: Calculator, color: 'from-green-500 to-emerald-500', price: 'Free' },
+    { title: 'Letter Generator', description: 'Cover, employer, and invitation letters', link: '/services?tab=letters', icon: Mail, color: 'from-orange-500 to-yellow-500', price: 'Free' },
   ];
 
   return (
@@ -47,20 +54,45 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {menuItems.map((item, index) => (
-            <Link
-              key={index}
-              to={item.link}
-              className="glass-card rounded-2xl p-6 card-hover group"
-            >
-              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                <item.icon className="w-7 h-7 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
-              <p className="text-gray-400 text-sm">{item.description}</p>
-            </Link>
-          ))}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-white mb-4">Visa Tools</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {menuItems.map((item, index) => (
+              <Link
+                key={index}
+                to={item.link}
+                className="glass-card rounded-2xl p-6 card-hover group"
+              >
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <item.icon className="w-7 h-7 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
+                <p className="text-gray-400 text-sm">{item.description}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-white mb-4">Premium Services</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {servicesItems.map((item, index) => (
+              <Link
+                key={index}
+                to={item.link}
+                className="glass-card rounded-2xl p-5 card-hover group relative overflow-hidden"
+              >
+                <div className={`absolute top-0 right-0 px-3 py-1 bg-gradient-to-r ${item.color} rounded-bl-xl text-xs text-white font-semibold`}>
+                  {item.price}
+                </div>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                  <item.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-base font-semibold text-white mb-1">{item.title}</h3>
+                <p className="text-gray-400 text-xs">{item.description}</p>
+              </Link>
+            ))}
+          </div>
         </div>
 
         <div className="glass-card rounded-2xl p-6 mt-10 text-center border-cyan-500/30">
