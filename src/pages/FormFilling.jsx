@@ -1,604 +1,517 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FileText, Download, Loader2, CheckCircle, AlertCircle, User, Camera, MapPin, Calendar, ChevronDown, AlertTriangle } from 'lucide-react';
+import { FileText, Download, Loader2, CheckCircle, User, Calendar, Globe, MapPin, Briefcase, CreditCard, Upload } from 'lucide-react';
 import { jsPDF } from 'jspdf';
-import { useAuth } from '../context/AuthContext';
 
 export default function FormFilling() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { getAuthHeaders, API_URL } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const [step, setStep] = useState(1);
   const [generating, setGenerating] = useState(false);
-  const [profile, setProfile] = useState(null);
-  const [passportPhoto, setPassportPhoto] = useState(null);
-  const [selectedApp, setSelectedApp] = useState(null);
-  const [applications, setApplications] = useState([]);
-  const [error, setError] = useState('');
-  
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const [photo, setPhoto] = useState(null);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    placeOfBirth: '',
+    nationality: '',
+    passportNumber: '',
+    passportIssueDate: '',
+    passportExpiryDate: '',
+    destination: '',
+    purpose: 'tourism',
+    arrivalDate: '',
+    departureDate: '',
+    accommodation: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
 
-  const fetchData = async () => {
-    try {
-      const headers = getAuthHeaders();
-      console.log('Fetching with headers:', headers);
-      
-      const profileRes = await fetch(`${API_URL}/api/user/profile`, {
-        headers: headers
-      });
-      
-      console.log('Profile response status:', profileRes.status);
-
-      if (profileRes.status === 401) {
-        setError('Session expired. Please log in again.');
-        return;
-      }
-
-      if (profileRes.ok) {
-        const profileData = await profileRes.json();
-        setProfile(profileData);
-        console.log('Profile data:', profileData);
-        if (profileData.passport_photo) {
-          setPassportPhoto(profileData.passport_photo);
-          console.log('Passport photo found');
-        }
-      } else {
-        setError('Could not load profile. Please try again.');
-      }
-
-      const appsRes = await fetch(`${API_URL}/api/applications`, {
-        headers: headers
-      });
-
-      if (appsRes.ok) {
-        const appsData = await appsRes.json();
-        setApplications(appsData);
-        console.log('Applications:', appsData);
-        if (appsData.length > 0) {
-          setSelectedApp(appsData[0]);
-        }
-      }
-    } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Failed to connect to server. The backend may be sleeping. Please wait 30 seconds and try again.');
-    }
-    setLoading(false);
+  const updateField = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const generatePDF = async () => {
-    if (!profile) {
-      alert('Please complete your profile first');
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setPhoto(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const generatePDF = () => {
+    if (!formData.firstName || !formData.lastName || !formData.passportNumber) {
+      alert('Please fill in at least: First Name, Last Name, and Passport Number');
       return;
     }
     
     setGenerating(true);
     
-    try {
-      const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
+    setTimeout(() => {
+      try {
+        const doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
 
-      const width = doc.internal.pageSize.getWidth();
+        const width = doc.internal.pageSize.getWidth();
 
-      doc.setFillColor(0, 26, 77);
-      doc.rect(0, 0, width, 35, 'F');
+        // Header
+        doc.setFillColor(0, 26, 77);
+        doc.rect(0, 0, width, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SCHENGEN VISA APPLICATION FORM', width/2, 18, { align: 'center' });
+        doc.setFontSize(10);
+        doc.text('Short-stay Visa Application', width/2, 28, { align: 'center' });
 
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(18);
-      doc.setFont('helvetica', 'bold');
-      doc.text('SCHENGEN VISA APPLICATION FORM', 20, 18);
+        let y = 55;
+        doc.setTextColor(0, 0, 0);
 
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Application for Schengen Visa - Type D/Type C', 20, 26);
+        // Photo box
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.5);
+        doc.rect(140, 50, 35, 45);
+        doc.setFontSize(8);
+        doc.text('PHOTO', 157, 75, { align: 'center' });
 
-      let y = 45;
-
-      doc.setTextColor(0, 26, 77);
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.rect(15, y - 4, width - 30, 8, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.text('SECTION A: PERSONAL INFORMATION', 20, y + 1);
-
-      y += 12;
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-
-      doc.text('Surname (Family Name):', 20, y);
-      doc.setFont('helvetica', 'bold');
-      const lastName = profile.last_name || profile.Last_Name || '';
-      doc.text(lastName.toUpperCase() || '_______________', 55, y);
-
-      doc.setFont('helvetica', 'normal');
-      doc.text('Surname at birth (if different):', 105, y);
-      doc.text('_______________', 155, y);
-
-      y += 7;
-      doc.setFont('helvetica', 'normal');
-      doc.text('Given Name(s) (First Name):', 20, y);
-      doc.setFont('helvetica', 'bold');
-      const firstName = profile.first_name || profile.First_Name || '';
-      doc.text(firstName || '_______________', 60, y);
-
-      y += 7;
-      doc.setFont('helvetica', 'normal');
-      doc.text('Date of Birth:', 20, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text(formatDate(profile.date_of_birth || profile.dateOfBirth), 45, y);
-
-      doc.setFont('helvetica', 'normal');
-      doc.text('Place of Birth:', 85, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text(profile.place_of_birth || profile.placeOfBirth || '_______________', 115, y);
-
-      y += 7;
-      doc.setFont('helvetica', 'normal');
-      doc.text('Sex:', 20, y);
-      doc.text('☐ Male    ☐ Female', 35, y);
-
-      doc.setFont('helvetica', 'normal');
-      doc.text('Marital Status:', 85, y);
-      doc.setFont('helvetica', 'bold');
-      const maritalStatus = profile.marital_status || profile.maritalStatus || '';
-      doc.text(
-        `${maritalStatus === 'Single' ? '☑' : '☐'} Single    ${maritalStatus === 'Married' ? '☑' : '☐'} Married    ${maritalStatus === 'Divorced' ? '☑' : '☐'} Divorced    ${maritalStatus === 'Widowed' ? '☑' : '☐'} Widowed`,
-        120, y
-      );
-
-      y += 12;
-      doc.setTextColor(0, 26, 77);
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.rect(15, y - 4, width - 30, 8, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.text('SECTION B: TRAVEL DOCUMENT INFORMATION', 20, y + 1);
-
-      y += 12;
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-
-      doc.text('Travel Document Type:', 20, y);
-      doc.text('☑ Ordinary Passport    ☐ Diplomatic Passport    ☐ Service Passport', 55, y);
-
-      y += 7;
-      doc.text('Passport Number:', 20, y);
-      doc.setFont('helvetica', 'bold');
-      const passportNum = profile.passport_number || profile.passportNumber || '';
-      doc.text(passportNum || '_______________', 50, y);
-
-      doc.setFont('helvetica', 'normal');
-      doc.text('Issue Date:', 100, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text(formatDate(profile.passport_issue_date || profile.passportIssueDate), 125, y);
-
-      doc.setFont('helvetica', 'normal');
-      doc.text('Expiry Date:', 165, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text(formatDate(profile.passport_expiry_date || profile.passportExpiryDate), 188, y);
-
-      y += 7;
-      doc.setFont('helvetica', 'normal');
-      doc.text('Issued by:', 20, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text(profile.passport_issue_country || profile.passportIssueCountry || '_______________', 40, y);
-
-      if (selectedApp) {
+        // Section 1: Personal Information
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('1. FAMILY NAME / SURNAME', 20, y);
+        y += 8;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text((formData.lastName || '_______________').toUpperCase(), 20, y);
+        doc.line(20, y + 1, 130, y + 1);
         y += 12;
-        doc.setTextColor(0, 26, 77);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('2. FIRST NAME(S)', 20, y);
+        y += 8;
+        doc.setFont('helvetica', 'normal');
+        doc.text((formData.firstName || '_______________').toUpperCase(), 20, y);
+        doc.line(20, y + 1, 130, y + 1);
+        y += 12;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('3. DATE OF BIRTH', 20, y);
+        doc.text('4. PLACE OF BIRTH', 100, y);
+        y += 8;
+        doc.setFont('helvetica', 'normal');
+        doc.text(formData.dateOfBirth || 'DD/MM/YYYY', 20, y);
+        doc.text(formData.placeOfBirth || '_______________', 100, y);
+        doc.line(20, y + 1, 90, y + 1);
+        doc.line(100, y + 1, 170, y + 1);
+        y += 12;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('5. CURRENT NATIONALITY', 20, y);
+        doc.text('6. NATIONALITY AT BIRTH', 100, y);
+        y += 8;
+        doc.setFont('helvetica', 'normal');
+        doc.text(formData.nationality || '_______________', 20, y);
+        doc.text(formData.nationality || '_______________', 100, y);
+        doc.line(20, y + 1, 90, y + 1);
+        doc.line(100, y + 1, 170, y + 1);
+        y += 12;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('7. SEX', 20, y);
+        y += 8;
+        doc.setFont('helvetica', 'normal');
+        doc.text('[ ] Male    [ ] Female', 20, y);
+        y += 15;
+
+        // Travel Document Section
+        doc.setFillColor(240, 240, 240);
+        doc.rect(15, y - 5, width - 30, 8, 'F');
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
-        doc.rect(15, y - 4, width - 30, 8, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.text('SECTION C: VISA INFORMATION', 20, y + 1);
-
+        doc.text('TRAVEL DOCUMENT', 20, y);
         y += 12;
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
 
-        doc.text('Purpose of Travel:', 20, y);
+        doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        doc.text((selectedApp.purpose_of_travel || selectedApp.purposeOfTravel || '_______________').toUpperCase(), 55, y);
-
-        y += 7;
+        doc.text('9. PASSPORT NUMBER', 20, y);
+        doc.text('10. DATE OF ISSUE', 100, y);
+        y += 8;
         doc.setFont('helvetica', 'normal');
-        doc.text('Number of Entries:', 20, y);
-        doc.text('☑ Single    ☐ Two    ☐ Multiple', 55, y);
+        doc.text(formData.passportNumber || '_______________', 20, y);
+        doc.text(formData.passportIssueDate || 'DD/MM/YYYY', 100, y);
+        doc.line(20, y + 1, 90, y + 1);
+        doc.line(100, y + 1, 170, y + 1);
+        y += 12;
 
-        y += 7;
-        doc.text('Intended Date of Arrival:', 20, y);
         doc.setFont('helvetica', 'bold');
-        doc.text(formatDate(selectedApp.intended_travel_start || selectedApp.intendedTravelStart), 70, y);
-
+        doc.text('11. VALID UNTIL', 20, y);
+        y += 8;
         doc.setFont('helvetica', 'normal');
-        doc.text('Intended Date of Departure:', 115, y);
-        doc.setFont('helvetica', 'bold');
-        doc.text(formatDate(selectedApp.intended_travel_end || selectedApp.intendedTravelEnd), 172, y);
+        doc.text(formData.passportExpiryDate || 'DD/MM/YYYY', 20, y);
+        doc.line(20, y + 1, 90, y + 1);
+        y += 15;
 
-        y += 7;
-        doc.setFont('helvetica', 'normal');
-        doc.text('Main Destination (Country):', 20, y);
+        // Visa Application Section
+        doc.setFillColor(240, 240, 240);
+        doc.rect(15, y - 5, width - 30, 8, 'F');
+        doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
-        doc.text((selectedApp.destination_country || selectedApp.destinationCountry || '_______________').toUpperCase(), 75, y);
+        doc.text('VISA APPLICATION', 20, y);
+        y += 12;
 
-        y += 7;
-        doc.setFont('helvetica', 'normal');
-        doc.text('Country of First Entry:', 20, y);
+        doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        doc.text((selectedApp.destination_country || selectedApp.destinationCountry || '_______________').toUpperCase(), 68, y);
+        doc.text('16. MEMBER STATE(S) OF DESTINATION', 20, y);
+        y += 8;
+        doc.setFont('helvetica', 'normal');
+        doc.text(formData.destination || '_______________', 20, y);
+        doc.line(20, y + 1, 170, y + 1);
+        y += 12;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('17. PURPOSE OF TRAVEL', 20, y);
+        y += 8;
+        doc.setFont('helvetica', 'normal');
+        const purposes = ['tourism', 'business', 'visiting', 'medical', 'study'];
+        purposes.forEach((p, i) => {
+          doc.text(`[ ] ${p.charAt(0).toUpperCase() + p.slice(1)}`, 20 + (i * 30), y);
+          if (p === formData.purpose) {
+            doc.setFont('zapfdingbats');
+            doc.text('/', 21 + (i * 30), y - 1);
+            doc.setFont('helvetica');
+          }
+        });
+        y += 12;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('18. FIRST INTENDED STAY', 20, y);
+        y += 8;
+        doc.setFont('helvetica', 'normal');
+        doc.text(`From: ${formData.arrivalDate || 'DD/MM/YYYY'}  To: ${formData.departureDate || 'DD/MM/YYYY'}`, 20, y);
+        doc.line(20, y + 1, 170, y + 1);
+        y += 12;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('19. ACCOMMODATION', 20, y);
+        y += 8;
+        doc.setFont('helvetica', 'normal');
+        doc.text(formData.accommodation || 'Hotel / Address', 20, y);
+        doc.line(20, y + 1, 170, y + 1);
+        y += 15;
+
+        // Contact Section
+        doc.setFillColor(240, 240, 240);
+        doc.rect(15, y - 5, width - 30, 8, 'F');
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text('APPLICANT CONTACT', 20, y);
+        y += 12;
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('35. EMAIL', 20, y);
+        doc.text('36. PHONE', 100, y);
+        y += 8;
+        doc.setFont('helvetica', 'normal');
+        doc.text(formData.email || '_______________', 20, y);
+        doc.text(formData.phone || '_______________', 100, y);
+        doc.line(20, y + 1, 90, y + 1);
+        doc.line(100, y + 1, 170, y + 1);
+        y += 12;
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('37. CURRENT ADDRESS', 20, y);
+        y += 8;
+        doc.setFont('helvetica', 'normal');
+        doc.text(formData.address || '_______________', 20, y);
+        doc.line(20, y + 1, 170, y + 1);
+        y += 20;
+
+        // Declaration
+        doc.setDrawColor(0, 0, 0);
+        doc.rect(15, y, width - 30, 35);
+        doc.setFontSize(8);
+        doc.text('I declare that I have completed this application form correctly, that all information given is true, and that I am aware that any false statement will lead to automatic refusal of my visa application.', 20, y + 8);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, y + 20);
+        doc.text('Signature: ________________________', 100, y + 20);
+
+        // Footer
+        doc.setFontSize(7);
+        doc.setTextColor(100, 100, 100);
+        doc.text('Generated by VisaGpt - Know Your Visa Chances Before You Apply', width/2, 290, { align: 'center' });
+
+        doc.save(`Schengen_Visa_Form_${formData.lastName || 'Application'}.pdf`);
+      } catch (err) {
+        console.error('PDF generation error:', err);
+        alert('Error generating PDF. Please try again.');
       }
-
-      y += 12;
-      doc.setTextColor(0, 26, 77);
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.rect(15, y - 4, width - 30, 8, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.text('SECTION D: FINANCIAL MEANS', 20, y + 1);
-
-      y += 12;
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-
-      doc.text('Means of Subsistence:', 20, y);
-      doc.text('☑ Cash    ☑ Credit Cards    ☐ Traveller\'s Cheques    ☐ Other', 60, y);
-
-      y += 7;
-      doc.text('Monthly Income:', 20, y);
-      doc.setFont('helvetica', 'bold');
-      const monthlyIncome = profile.monthly_income || profile.monthlyIncome || 0;
-      doc.text(`€ ${(monthlyIncome * 0.92).toFixed(2)}`, 50, y);
-
-      doc.setFont('helvetica', 'normal');
-      doc.text('Bank Balance (6 mo avg):', 105, y);
-      doc.setFont('helvetica', 'bold');
-      const bankBalance = profile.bank_balance_avg_6m || profile.bankBalance || 0;
-      doc.text(`€ ${(bankBalance * 0.92).toFixed(2)}`, 155, y);
-
-      y += 12;
-      doc.setTextColor(0, 26, 77);
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.rect(15, y - 4, width - 30, 8, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.text('SECTION E: EMPLOYMENT INFORMATION', 20, y + 1);
-
-      y += 12;
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-
-      doc.text('Employment Status:', 20, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text(profile.employment_status || profile.employmentStatus || '_______________', 55, y);
-
-      y += 7;
-      doc.setFont('helvetica', 'normal');
-      doc.text('Company/Employer:', 20, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text(profile.company_name || profile.companyName || '_______________', 60, y);
-
-      y += 7;
-      doc.setFont('helvetica', 'normal');
-      doc.text('Job Title:', 20, y);
-      doc.setFont('helvetica', 'bold');
-      doc.text(profile.job_title || profile.jobTitle || '_______________', 45, y);
-
-      y += 15;
-
-      doc.setFillColor(240, 240, 240);
-      doc.rect(15, y - 5, width - 30, 40, 'F');
-
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.text('DECLARATION', 20, y);
-
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.text('I declare that the information provided in this application is accurate and complete.', 20, y + 7);
-      doc.text('I am aware that any false or incomplete information may lead to the rejection of my application.', 20, y + 13);
-      doc.text('I consent to the processing of my personal data for the purposes of this visa application.', 20, y + 19);
-
-      y += 35;
-      doc.setFontSize(9);
-      doc.text('Date:', 20, y);
-      doc.text(new Date().toLocaleDateString('en-GB'), 35, y);
-
-      doc.text('Signature:', 80, y);
-      doc.line(105, y, 160, y);
-
-      y += 15;
-      doc.setTextColor(100, 100, 100);
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.text('VISA GPT - AI-ASSISTED PREPARATION', 20, y);
-
-      doc.setFont('helvetica', 'normal');
-      doc.text('This document was prepared using AI-assisted visa eligibility analysis', 20, y + 6);
-      doc.text('Application ID: ' + (selectedApp?.id || 'N/A') + ' | Probability: ' + (selectedApp?.success_probability || selectedApp?.successProbability || 'N/A') + '%', 20, y + 12);
-
-      if (passportPhoto) {
-        try {
-          doc.addPage();
-          doc.setFillColor(0, 26, 77);
-          doc.rect(0, 0, width, 20, 'F');
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(14);
-          doc.setFont('helvetica', 'bold');
-          doc.text('PASSPORT PHOTO', 20, 13);
-
-          const imgData = passportPhoto;
-          const imgWidth = 40;
-          const imgHeight = 50;
-          const x = (width - imgWidth) / 2;
-          const imgY = 40;
-          
-          doc.addImage(imgData, 'JPEG', x, imgY, imgWidth, imgHeight);
-          
-          doc.setTextColor(0, 0, 0);
-          doc.setFontSize(9);
-          doc.setFont('helvetica', 'normal');
-          doc.text(`${firstName} ${lastName}`.trim(), x + 5, imgY + imgWidth + 10);
-        } catch (imgErr) {
-          console.error('Error adding photo:', imgErr);
-        }
-      }
-
-      const fileName = `Schengen_Application_${lastName || 'User'}_${new Date().toISOString().split('T')[0]}.pdf`;
-      doc.save(fileName);
-      console.log('PDF generated successfully:', fileName);
       
-    } catch (err) {
-      console.error('Error generating PDF:', err);
-      alert('Error generating PDF. Please try again.');
-    }
-    
-    setGenerating(false);
+      setGenerating(false);
+      setStep(2);
+    }, 1500);
   };
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '____/____/________';
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString('en-GB');
-    } catch {
-      return dateStr;
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen ai-bg flex items-center justify-center">
-        <div className="text-center">
-          <div className="spinner mx-auto mb-4"></div>
-          <p className="text-gray-400">{t('common.loading')}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen ai-bg flex items-center justify-center">
-        <div className="glass-card rounded-3xl p-8 max-w-md text-center">
-          <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Error</h2>
-          <p className="text-gray-400 mb-4">{error}</p>
-          <button onClick={() => navigate('/login')} className="btn-primary">
-            Go to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const missingFields = [];
-  if (!profile?.first_name && !profile?.First_Name) missingFields.push(t('profile.firstName'));
-  if (!profile?.last_name && !profile?.Last_Name) missingFields.push(t('profile.lastName'));
-  if (!profile?.date_of_birth && !profile?.dateOfBirth) missingFields.push(t('profile.dateOfBirth'));
-  if (!profile?.passport_number && !profile?.passportNumber) missingFields.push(t('formFilling.passportNumber'));
-  if (!passportPhoto) missingFields.push(t('formFilling.passportPhoto'));
-
-  const profileComplete = missingFields.length === 0;
 
   return (
     <div className="min-h-screen ai-bg grid-pattern pt-24 pb-12 px-4">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold gradient-text mb-2">{t('formFilling.title')}</h1>
-          <p className="text-gray-400">{t('formFilling.subtitle')}</p>
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold gradient-text mb-2">Form Filling</h1>
+          <p className="text-gray-400">Auto-fill Schengen visa application form with your details</p>
         </div>
 
-        {missingFields.length > 0 && (
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-6">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-yellow-500 font-medium mb-1">{t('formFilling.missingInfo')}</p>
-                <p className="text-gray-400 text-sm mb-2">{t('formFilling.missingFields')}</p>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {missingFields.map((field) => (
-                    <span key={field} className="px-2 py-1 bg-yellow-500/20 rounded text-yellow-400 text-xs">
-                      {field}
-                    </span>
-                  ))}
+        {step === 1 && (
+          <div className="space-y-6">
+            <div className="glass-card rounded-3xl p-6">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-white" />
                 </div>
-                <button 
-                  onClick={() => navigate('/profile')}
-                  className="text-yellow-500 text-sm hover:underline"
-                >
-                  {t('formFilling.updateProfile')}
-                </button>
+                <div>
+                  <h2 className="text-xl font-bold text-white">Personal Information</h2>
+                  <p className="text-gray-400 text-sm">Fill in your details for the visa application</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="label">First Name *</label>
+                  <input
+                    type="text"
+                    value={formData.firstName}
+                    onChange={(e) => updateField('firstName', e.target.value)}
+                    className="input"
+                    placeholder="As shown in passport"
+                  />
+                </div>
+                <div>
+                  <label className="label">Last Name *</label>
+                  <input
+                    type="text"
+                    value={formData.lastName}
+                    onChange={(e) => updateField('lastName', e.target.value)}
+                    className="input"
+                    placeholder="As shown in passport"
+                  />
+                </div>
+                <div>
+                  <label className="label">Date of Birth</label>
+                  <input
+                    type="date"
+                    value={formData.dateOfBirth}
+                    onChange={(e) => updateField('dateOfBirth', e.target.value)}
+                    className="input"
+                  />
+                </div>
+                <div>
+                  <label className="label">Place of Birth</label>
+                  <input
+                    type="text"
+                    value={formData.placeOfBirth}
+                    onChange={(e) => updateField('placeOfBirth', e.target.value)}
+                    className="input"
+                    placeholder="City, Country"
+                  />
+                </div>
+                <div>
+                  <label className="label">Nationality</label>
+                  <input
+                    type="text"
+                    value={formData.nationality}
+                    onChange={(e) => updateField('nationality', e.target.value)}
+                    className="input"
+                    placeholder="Algerian"
+                  />
+                </div>
+                <div>
+                  <label className="label">Email</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => updateField('email', e.target.value)}
+                    className="input"
+                    placeholder="your@email.com"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        )}
 
-        {applications.length === 0 && (
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-blue-500 font-medium mb-1">No Application Found</p>
-                <p className="text-gray-400 text-sm mb-3">
-                  You need to create an application first. Go to AI Eligibility Assessment to create one.
-                </p>
-                <button 
-                  onClick={() => navigate('/eligibility-test')}
-                  className="text-blue-500 text-sm hover:underline"
-                >
-                  Go to Eligibility Assessment →
-                </button>
+            <div className="glass-card rounded-3xl p-6">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-indigo-400" />
+                Passport Information
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Passport Number *</label>
+                  <input
+                    type="text"
+                    value={formData.passportNumber}
+                    onChange={(e) => updateField('passportNumber', e.target.value)}
+                    className="input"
+                    placeholder="A12345678"
+                  />
+                </div>
+                <div>
+                  <label className="label">Issue Date</label>
+                  <input
+                    type="date"
+                    value={formData.passportIssueDate}
+                    onChange={(e) => updateField('passportIssueDate', e.target.value)}
+                    className="input"
+                  />
+                </div>
+                <div>
+                  <label className="label">Expiry Date</label>
+                  <input
+                    type="date"
+                    value={formData.passportExpiryDate}
+                    onChange={(e) => updateField('passportExpiryDate', e.target.value)}
+                    className="input"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        )}
 
-        <div className="glass-card rounded-3xl p-8 glow">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-14 h-14 rounded-2xl gradient-bg flex items-center justify-center">
-              <FileText className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">{t('formFilling.schengenForm')}</h2>
-              <p className="text-gray-400 text-sm">{t('formFilling.prefilled')}</p>
-            </div>
-          </div>
-
-          <div className="space-y-4 mb-6">
-            <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-xl">
-              <User className="w-5 h-5 text-purple-400" />
-              <div className="flex-1">
-                <p className="text-gray-400 text-xs">{t('formFilling.name')}</p>
-                <p className="text-white">{(profile?.first_name || profile?.First_Name) || '—'} {(profile?.last_name || profile?.Last_Name) || '—'}</p>
+            <div className="glass-card rounded-3xl p-6">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <Globe className="w-5 h-5 text-indigo-400" />
+                Travel Details
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Destination Country</label>
+                  <select
+                    value={formData.destination}
+                    onChange={(e) => updateField('destination', e.target.value)}
+                    className="input"
+                  >
+                    <option value="">Select country</option>
+                    <option value="France">France</option>
+                    <option value="Germany">Germany</option>
+                    <option value="Italy">Italy</option>
+                    <option value="Spain">Spain</option>
+                    <option value="Netherlands">Netherlands</option>
+                    <option value="Belgium">Belgium</option>
+                    <option value="Portugal">Portugal</option>
+                    <option value="Greece">Greece</option>
+                    <option value="Austria">Austria</option>
+                    <option value="Switzerland">Switzerland</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Purpose</label>
+                  <select
+                    value={formData.purpose}
+                    onChange={(e) => updateField('purpose', e.target.value)}
+                    className="input"
+                  >
+                    <option value="tourism">Tourism</option>
+                    <option value="business">Business</option>
+                    <option value="visiting">Visiting Family</option>
+                    <option value="medical">Medical</option>
+                    <option value="study">Study</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Arrival Date</label>
+                  <input
+                    type="date"
+                    value={formData.arrivalDate}
+                    onChange={(e) => updateField('arrivalDate', e.target.value)}
+                    className="input"
+                  />
+                </div>
+                <div>
+                  <label className="label">Departure Date</label>
+                  <input
+                    type="date"
+                    value={formData.departureDate}
+                    onChange={(e) => updateField('departureDate', e.target.value)}
+                    className="input"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="label">Accommodation</label>
+                  <input
+                    type="text"
+                    value={formData.accommodation}
+                    onChange={(e) => updateField('accommodation', e.target.value)}
+                    className="input"
+                    placeholder="Hotel name and address"
+                  />
+                </div>
               </div>
-              {profile?.first_name || profile?.First_Name ? (
-                <CheckCircle className="w-5 h-5 text-green-500" />
-              ) : (
-                <AlertCircle className="w-5 h-5 text-yellow-500" />
+            </div>
+
+            <div className="glass-card rounded-3xl p-6">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <Camera className="w-5 h-5 text-indigo-400" />
+                Passport Photo (Optional)
+              </h3>
+              <label className="block border-2 border-dashed border-gray-600 rounded-xl p-6 text-center cursor-pointer hover:border-indigo-500 transition-colors">
+                <Upload className="w-10 h-10 text-gray-500 mx-auto mb-2" />
+                <p className="text-white font-semibold mb-1">Upload Passport Photo</p>
+                <p className="text-gray-400 text-sm">This will be embedded in the form</p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+              </label>
+              {photo && (
+                <div className="mt-4 flex justify-center">
+                  <img src={photo} alt="Passport photo" className="w-24 h-32 object-cover rounded border" />
+                </div>
               )}
             </div>
 
-            <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-xl">
-              <Calendar className="w-5 h-5 text-cyan-400" />
-              <div className="flex-1">
-                <p className="text-gray-400 text-xs">{t('formFilling.dateOfBirth')}</p>
-                <p className="text-white">{formatDate(profile?.date_of_birth || profile?.dateOfBirth)}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-xl">
-              <MapPin className="w-5 h-5 text-pink-400" />
-              <div className="flex-1">
-                <p className="text-gray-400 text-xs">{t('formFilling.passportNumber')}</p>
-                <p className="text-white">{profile?.passport_number || profile?.passportNumber || '—'}</p>
-              </div>
-              {profile?.passport_number || profile?.passportNumber ? (
-                <CheckCircle className="w-5 h-5 text-green-500" />
+            <button
+              onClick={generatePDF}
+              disabled={generating}
+              className="w-full btn-primary flex items-center justify-center gap-2 glow-button"
+            >
+              {generating ? (
+                <><Loader2 className="w-5 h-5 animate-spin" /> Generating Form...</>
               ) : (
-                <AlertCircle className="w-5 h-5 text-yellow-500" />
+                <><FileText className="w-5 h-5" /> Generate Schengen Visa Form</>
               )}
-            </div>
-
-            <div className="flex items-center gap-3 p-4 bg-gray-800/30 rounded-xl">
-              <Camera className="w-5 h-5 text-green-400" />
-              <div className="flex-1">
-                <p className="text-gray-400 text-xs">{t('formFilling.passportPhoto')}</p>
-                {passportPhoto ? (
-                  <div className="flex items-center gap-3 mt-1">
-                    <img src={passportPhoto} alt="Passport" className="w-12 h-12 rounded-lg object-cover" />
-                    <span className="text-green-400 text-sm flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4" /> {t('formFilling.ready')}
-                    </span>
-                  </div>
-                ) : (
-                  <p className="text-yellow-400">{t('formFilling.notUploaded')}</p>
-                )}
-              </div>
-            </div>
+            </button>
           </div>
+        )}
 
-          {applications.length > 0 && (
-            <div className="mb-6">
-              <label className="label mb-2">Select Application</label>
-              <div className="relative">
-                <select 
-                  value={selectedApp?.id || ''}
-                  onChange={(e) => {
-                    const app = applications.find(a => a.id === parseInt(e.target.value));
-                    setSelectedApp(app);
-                  }}
-                  className="input appearance-none pr-10"
-                >
-                  {applications.map((app) => (
-                    <option key={app.id} value={app.id}>
-                      {app.destination_country || app.destinationCountry} - {app.purpose_of_travel || app.purposeOfTravel}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
-              </div>
+        {step === 2 && (
+          <div className="glass-card rounded-3xl p-8 text-center">
+            <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-10 h-10 text-green-400" />
             </div>
-          )}
-
-          {selectedApp && (
-            <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-6">
-              <p className="text-purple-400 text-sm font-medium mb-2">{t('formFilling.applicationDetails')}</p>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-400">{t('formFilling.destination')}</p>
-                  <p className="text-white">{selectedApp.destination_country || selectedApp.destinationCountry}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400">{t('formFilling.purpose')}</p>
-                  <p className="text-white">{selectedApp.purpose_of_travel || selectedApp.purposeOfTravel}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400">{t('formFilling.travelDates')}</p>
-                  <p className="text-white">
-                    {formatDate(selectedApp.intended_travel_start || selectedApp.intendedTravelStart)} - {formatDate(selectedApp.intended_travel_end || selectedApp.intendedTravelEnd)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-gray-400">{t('formFilling.probabilityScore')}</p>
-                  <p className="text-white">{selectedApp.success_probability || selectedApp.successProbability || '—'}%</p>
-                </div>
-              </div>
+            <h3 className="text-2xl font-bold text-white mb-2">Form Generated!</h3>
+            <p className="text-gray-400 mb-6">
+              Your Schengen visa application form has been downloaded.
+            </p>
+            <div className="bg-gray-800/50 rounded-xl p-4 mb-6 text-left">
+              <p className="text-white font-semibold mb-2">Next Steps:</p>
+              <ol className="text-gray-400 text-sm space-y-2">
+                <li>1. Print the downloaded PDF form</li>
+                <li>2. Sign and date the declaration section</li>
+                <li>3. Attach your passport photo (35×45mm)</li>
+                <li>4. Submit with all required documents</li>
+              </ol>
             </div>
-          )}
-
-          <button
-            onClick={generatePDF}
-            disabled={generating || !profileComplete}
-            className={`w-full btn-primary flex items-center justify-center gap-2 glow-button ${!profileComplete ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            {generating ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                {t('formFilling.generating')}
-              </>
-            ) : (
-              <>
-                <Download className="w-5 h-5" />
-                {t('formFilling.downloadPdf')}
-              </>
-            )}
-          </button>
-
-          <p className="text-gray-500 text-xs text-center mt-4">
-            {t('formFilling.note')}
-          </p>
-        </div>
+            <button
+              onClick={() => { setStep(1); setFormData({ firstName: '', lastName: '', dateOfBirth: '', placeOfBirth: '', nationality: '', passportNumber: '', passportIssueDate: '', passportExpiryDate: '', destination: '', purpose: 'tourism', arrivalDate: '', departureDate: '', accommodation: '', email: '', phone: '', address: '' }); setPhoto(null); }}
+              className="btn-primary"
+            >
+              Fill Another Form
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

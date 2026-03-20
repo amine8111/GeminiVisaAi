@@ -10,6 +10,8 @@ import RefusalAnalyzer from '../components/RefusalAnalyzer';
 import DummyBooking from '../components/DummyBooking';
 import PhotoValidator from '../components/PhotoValidator';
 import AntiScamDirectory from '../components/AntiScamDirectory';
+import * as pdfjsLib from 'pdfjs-dist';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 export default function Services() {
   const { t, i18n } = useTranslation();
@@ -111,24 +113,71 @@ export default function Services() {
     setTranslationLoading(true);
     setMessage(translationType === 'official' 
       ? 'Submitting for official translation...' 
-      : 'Translating document...');
+      : 'Extracting text and translating...');
     
-    setTimeout(() => {
-      setTranslationLoading(false);
+    try {
       if (translationType === 'normal') {
+        // Extract text from PDF
+        const arrayBuffer = await uploadedFile.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map(item => item.str).join(' ');
+          fullText += pageText + '\n\n';
+        }
+        
+        if (!fullText.trim()) {
+          setMessage('Could not extract text from PDF. The document may be image-based or encrypted.');
+          setTranslationLoading(false);
+          return;
+        }
+
+        setMessage('Text extracted. Translating to ' + languages.find(l => l.code === selectedLanguage)?.name + '...');
+        
+        // Translate using MyMemory API (free, 5000 chars/day)
+        const langPair = `en|${selectedLanguage}`;
+        const chunks = [];
+        const chunkSize = 4500;
+        
+        for (let i = 0; i < fullText.length; i += chunkSize) {
+          chunks.push(fullText.substring(i, i + chunkSize));
+        }
+        
+        let translatedText = '';
+        for (const chunk of chunks) {
+          const response = await fetch(
+            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=${langPair}`
+          );
+          const data = await response.json();
+          if (data.responseData && data.responseData.translatedText) {
+            translatedText += data.responseData.translatedText + '\n';
+          }
+          await new Promise(r => setTimeout(r, 100)); // Rate limiting
+        }
+        
         const langName = languages.find(l => l.code === selectedLanguage)?.name;
         setTranslatedFile({
           name: uploadedFile.name.replace('.pdf', `_${selectedLanguage}.pdf`),
           language: langName,
           originalName: uploadedFile.name,
-          targetLang: selectedLanguage
+          targetLang: selectedLanguage,
+          originalText: fullText.substring(0, 500),
+          translatedText: translatedText.substring(0, 500)
         });
         setMessage('Translation complete! Download your translated document below.');
       } else {
         setMessage('Official translation request submitted. It will be available in your profile within 24 hours.');
         setUploadedFile(null);
       }
-    }, 3000);
+    } catch (error) {
+      console.error('Translation error:', error);
+      setMessage('Translation error. Please try again with a different PDF.');
+    }
+    
+    setTranslationLoading(false);
   };
 
   const downloadTranslatedPDF = () => {
@@ -178,34 +227,28 @@ export default function Services() {
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(60, 60, 60);
     
-    const content = [
-      'This document contains the translated content from your original file.',
-      '',
-      `The original document "${translatedFile.originalName}" has been translated`,
-      `to ${translatedFile.language} by our AI translation service.`,
-      '',
-      'NOTE: This is an AI-assisted translation. For official purposes,',
-      'please use our Official Translation service for certified',
-      'translations accepted by embassies and authorities.',
-      '',
-      'Official Translation Service:',
-      '• Professional certified translators',
-      '• Accepted by all Schengen embassies',
-      '• €15 per page',
-      '• 24-hour delivery',
-      '',
-      'For official translation, select "Official Translation" option.',
-    ];
+    let y = 120;
     
-    let y = 125;
-    content.forEach(line => {
-      if (y > 270) {
-        doc.addPage();
-        y = 20;
-      }
-      doc.text(line, 20, y);
-      y += 7;
-    });
+    // Add actual translated text if available
+    if (translatedFile.translatedText) {
+      const lines = doc.splitTextToSize(translatedFile.translatedText, pageWidth - 40);
+      lines.forEach(line => {
+        if (y > 260) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(line, 20, y);
+        y += 6;
+      });
+      y += 10;
+    }
+    
+    // Note
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(100, 100, 100);
+    doc.text('Note: This is an AI-assisted translation. For official purposes,', 20, y);
+    doc.text('use our Official Translation service for certified translations.', 20, y + 6);
     
     // Footer
     doc.setFontSize(8);
