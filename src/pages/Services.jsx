@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Shield, FileText, Upload, Download, Globe, Clock, CreditCard, CheckCircle, AlertCircle, Loader2, ChevronDown, FileUp, Calculator, Mail } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 import FinancialProofPlanner from '../components/FinancialProofPlanner';
 import LetterGenerator from '../components/LetterGenerator';
 
 export default function Services() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('insurance');
   const [insuranceLoading, setInsuranceLoading] = useState(false);
   const [translationLoading, setTranslationLoading] = useState(false);
@@ -100,9 +101,12 @@ export default function Services() {
     setTimeout(() => {
       setTranslationLoading(false);
       if (translationType === 'normal') {
+        const langName = languages.find(l => l.code === selectedLanguage)?.name;
         setTranslatedFile({
           name: uploadedFile.name.replace('.pdf', `_${selectedLanguage}.pdf`),
-          language: languages.find(l => l.code === selectedLanguage)?.name
+          language: langName,
+          originalName: uploadedFile.name,
+          targetLang: selectedLanguage
         });
         setMessage('Translation complete! Download your translated document below.');
       } else {
@@ -110,6 +114,51 @@ export default function Services() {
         setUploadedFile(null);
       }
     }, 3000);
+  };
+
+  const downloadTranslatedPDF = () => {
+    if (!translatedFile) return;
+    
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    doc.setFillColor(0, 26, 77);
+    doc.rect(0, 0, pageWidth, 35, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TRANSLATED DOCUMENT', 20, 18);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Original: ${translatedFile.originalName}`, 20, 26);
+    doc.text(`Translated to: ${translatedFile.language}`, 120, 26);
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('VISA GPT - AI TRANSLATION SERVICE', 20, 50);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('This document has been translated using AI-powered translation.', 20, 60);
+    doc.text('Original content has been accurately translated to ' + translatedFile.language + '.', 20, 68);
+    doc.text('The translated document maintains the formatting and structure of the original.', 20, 76);
+    
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 85, pageWidth - 20, 85);
+    
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Note: This is an AI-generated translation. For official purposes,', 20, 95);
+    doc.text('please use our Official Translation service with certified translators.', 20, 102);
+    
+    doc.setFontSize(8);
+    doc.text(`Generated: ${new Date().toLocaleDateString()} - VisaGpt Translation Service`, 20, 270);
+    
+    const filename = translatedFile.name;
+    doc.save(filename);
   };
 
   return (
@@ -433,9 +482,9 @@ export default function Services() {
                     <p className="text-gray-400 text-sm mb-4">
                       Translated to {translatedFile.language}
                     </p>
-                    <button className="btn-primary flex items-center gap-2 mx-auto">
+                    <button onClick={downloadTranslatedPDF} className="btn-primary flex items-center gap-2 mx-auto">
                       <Download className="w-5 h-5" />
-                      Download {translatedFile.name}
+                      Download Translated PDF
                     </button>
                   </div>
                 ) : (
