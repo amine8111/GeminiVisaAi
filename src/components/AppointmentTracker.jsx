@@ -1,18 +1,90 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { Calendar, Bell, AlertCircle, CheckCircle, Loader2, Trash2, Clock, Send, MessageCircle, Link as LinkIcon } from 'lucide-react';
+import { Calendar, Bell, AlertCircle, CheckCircle, Loader2, Trash2, Clock, Send, MessageCircle, ExternalLink, Globe, Info } from 'lucide-react';
 
 const DESTINATIONS = [
-  { id: 'france', name: 'France (TLScontact)', country: 'France', city: 'Alger', website: 'tlscontact.com/dz' },
-  { id: 'spain', name: 'Spain (BLS)', country: 'Spain', city: 'Algiers', website: 'blsspain-usa.com' },
-  { id: 'germany', name: 'Germany (VFS)', country: 'Germany', city: 'Algiers', website: 'vfsglobal.com' },
-  { id: 'italy', name: 'Italy (VFS)', country: 'Italy', city: 'Algiers', website: 'vfsglobal.com' },
-  { id: 'portugal', name: 'Portugal (VFS)', country: 'Portugal', city: 'Algiers', website: 'vfsglobal.com' },
-  { id: 'uk', name: 'United Kingdom (TLScontact)', country: 'UK', city: 'Alger', website: 'tlscontact.com/gbr' },
-  { id: 'netherlands', name: 'Netherlands (VFS)', country: 'Netherlands', city: 'Algiers', website: 'vfsglobal.com' },
-  { id: 'belgium', name: 'Belgium (VFS)', country: 'Belgium', city: 'Algiers', website: 'vfsglobal.com' },
-  { id: 'greece', name: 'Greece (VFS)', country: 'Greece', city: 'Algiers', website: 'vfsglobal.com' },
+  {
+    id: 'france',
+    name: 'France',
+    provider: 'Capago International',
+    city: 'Algiers, Oran',
+    website: 'https://capago.fr',
+    bookingUrl: 'https://capago.fr/fr/booking',
+    note: 'Capago replaced TLScontact & VFS as of March 2025'
+  },
+  {
+    id: 'spain',
+    name: 'Spain',
+    provider: 'BLS International',
+    city: 'Algiers',
+    website: 'https://algeria.blsspainvisa.com',
+    bookingUrl: 'https://algeria.blsspainvisa.com/algiers/',
+    note: ''
+  },
+  {
+    id: 'germany',
+    name: 'Germany',
+    provider: 'VFS Global',
+    city: 'Algiers',
+    website: 'https://visa.vfsglobal.com/dza/en/deu',
+    bookingUrl: 'https://visa.vfsglobal.com/dza/en/deu/book-an-appointment',
+    note: ''
+  },
+  {
+    id: 'italy',
+    name: 'Italy',
+    provider: 'VFS Global',
+    city: 'Algiers',
+    website: 'https://visa.vfsglobal.com/dza/en/ita',
+    bookingUrl: 'https://visa.vfsglobal.com/dza/en/ita/book-an-appointment',
+    note: 'Centers also in Oran, Constantine, Annaba, Adrar'
+  },
+  {
+    id: 'uk',
+    name: 'United Kingdom',
+    provider: 'VFS Global',
+    city: 'Algiers',
+    website: 'https://visa.vfsglobal.com/dza/en/gbr',
+    bookingUrl: 'https://visa.vfsglobal.com/dza/en/gbr/book-an-appointment',
+    note: 'VFS replaced TLScontact as of late 2024'
+  },
+  {
+    id: 'netherlands',
+    name: 'Netherlands',
+    provider: 'VFS Global',
+    city: 'Algiers',
+    website: 'https://visa.vfsglobal.com/dza/en/nld',
+    bookingUrl: 'https://visa.vfsglobal.com/dza/en/nld/book-an-appointment',
+    note: ''
+  },
+  {
+    id: 'portugal',
+    name: 'Portugal',
+    provider: 'VFS Global',
+    city: 'Algiers',
+    website: 'https://visa.vfsglobal.com/dza/en/prt',
+    bookingUrl: 'https://visa.vfsglobal.com/dza/en/prt/book-an-appointment',
+    note: ''
+  },
+  {
+    id: 'belgium',
+    name: 'Belgium',
+    provider: 'VFS Global',
+    city: 'Algiers',
+    website: 'https://visa.vfsglobal.com/dza/en/bel',
+    bookingUrl: 'https://visa.vfsglobal.com/dza/en/bel/book-an-appointment',
+    note: ''
+  },
+  {
+    id: 'greece',
+    name: 'Greece',
+    provider: 'VFS Global',
+    city: 'Algiers',
+    website: 'https://visa.vfsglobal.com/dza/en/grc',
+    bookingUrl: 'https://visa.vfsglobal.com/dza/en/grc/book-an-appointment',
+    note: ''
+  },
 ];
 
 const VISA_TYPES = [
@@ -20,10 +92,11 @@ const VISA_TYPES = [
   { id: 'business', name: 'Business Visa' },
   { id: 'student', name: 'Student Visa' },
   { id: 'family', name: 'Family Visit' },
+  { id: 'work', name: 'Work Visa' },
 ];
 
 export default function AppointmentTracker() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { API_URL, getAuthHeaders, user } = useAuth();
   const [step, setStep] = useState(1);
   const [selectedDestination, setSelectedDestination] = useState(null);
@@ -37,7 +110,7 @@ export default function AppointmentTracker() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [checkingSlots, setCheckingSlots] = useState(false);
-  const [slotStatus, setSlotStatus] = useState(null);
+  const [showDestinations, setShowDestinations] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -57,25 +130,6 @@ export default function AppointmentTracker() {
     } catch (err) {
       console.error('Failed to fetch subscriptions');
     }
-  };
-
-  const checkSlotsNow = async (destination) => {
-    setCheckingSlots(true);
-    setSlotStatus(null);
-    
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const available = Math.random() > 0.7;
-    setSlotStatus({
-      destination,
-      available,
-      message: available 
-        ? `🎉 Slots are NOW AVAILABLE for ${destination.name}! Book immediately!`
-        : `No slots currently available for ${destination.name}. We'll notify you.`,
-      lastChecked: new Date().toISOString()
-    });
-    
-    setCheckingSlots(false);
   };
 
   const subscribe = async () => {
@@ -118,12 +172,6 @@ export default function AppointmentTracker() {
         setSuccess('Successfully subscribed! You will be notified when slots open.');
         setStep(2);
         fetchSubscriptions();
-        
-        if (notificationMethod === 'telegram') {
-          setTimeout(() => {
-            alert(`📱 Message sent to @${telegramUsername} on Telegram! Make sure to open Telegram to confirm.`);
-          }, 1000);
-        }
       } else {
         setError(data.message || 'Failed to subscribe');
       }
@@ -154,6 +202,11 @@ export default function AppointmentTracker() {
     setEmail('');
     setError('');
     setSuccess('');
+    setShowDestinations(true);
+  };
+
+  const openBookingSite = (destination) => {
+    window.open(destination.bookingUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -164,17 +217,18 @@ export default function AppointmentTracker() {
             <Calendar className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">Appointment Availability Tracker</h2>
-            <p className="text-gray-400 text-sm">Get instant alerts when VFS/TLS slots open</p>
+            <h2 className="text-xl font-bold text-white">Appointment Tracker</h2>
+            <p className="text-gray-400 text-sm">Get notified when appointment slots open</p>
           </div>
         </div>
         
         <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-            <p className="text-gray-400 text-sm">
-              We monitor VFS Global and TLScontact websites. When slots open for your destination, you'll get an instant Telegram message!
-            </p>
+            <div className="text-gray-400 text-sm">
+              <p className="mb-2">Subscribe to get instant Telegram alerts when slots open for your destination!</p>
+              <p className="text-blue-300">Or click any destination below to go directly to the official booking website.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -185,67 +239,114 @@ export default function AppointmentTracker() {
           <h3 className="text-white font-bold mb-2">Login Required</h3>
           <p className="text-gray-400 text-sm">Please login to subscribe to appointment alerts</p>
         </div>
-      ) : step === 1 ? (
-        <div className="glass-card rounded-3xl p-6">
-          <h3 className="text-lg font-bold text-white mb-4">Select Destination</h3>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-            {DESTINATIONS.map((dest) => (
-              <button
-                key={dest.id}
-                onClick={() => {
-                  setSelectedDestination(dest);
-                  setSlotStatus(null);
-                }}
-                className={`p-4 rounded-xl text-left transition-all ${
-                  selectedDestination?.id === dest.id
-                    ? 'bg-orange-500/20 border-2 border-orange-500'
-                    : 'bg-gray-800/50 border-2 border-transparent hover:border-gray-600'
-                }`}
-              >
-                <p className="text-white font-semibold text-sm">{dest.country}</p>
-                <p className="text-gray-400 text-xs">{dest.name}</p>
-              </button>
-            ))}
+      ) : (
+        <div className="space-y-4">
+          <div className="glass-card rounded-3xl p-6">
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <Globe className="w-5 h-5 text-orange-400" />
+              Select Destination & Book Appointment
+            </h3>
+            
+            <div className="space-y-3">
+              {DESTINATIONS.map((dest) => (
+                <div
+                  key={dest.id}
+                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                    selectedDestination?.id === dest.id
+                      ? 'border-orange-500 bg-orange-500/10'
+                      : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'
+                  }`}
+                  onClick={() => {
+                    setSelectedDestination(dest);
+                    setShowDestinations(false);
+                  }}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="text-white font-bold">{dest.name}</h4>
+                        <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">
+                          {dest.provider}
+                        </span>
+                      </div>
+                      <p className="text-gray-400 text-sm">{dest.city}</p>
+                      {dest.note && (
+                        <p className="text-yellow-400 text-xs mt-1">{dest.note}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {selectedDestination?.id === dest.id && (
+                        <CheckCircle className="w-5 h-5 text-orange-400" />
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openBookingSite(dest);
+                        }}
+                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-sm flex items-center gap-1 transition-colors"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        Book Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {selectedDestination && (
-            <>
-              <div className="p-4 bg-gray-800/50 rounded-xl mb-4">
-                <p className="text-gray-400 text-sm mb-1">Selected:</p>
-                <p className="text-white font-semibold">{selectedDestination.name}</p>
+            <div className="glass-card rounded-3xl p-6 border-2 border-orange-500/50">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-white">
+                  Subscribe to Alerts: {selectedDestination.name}
+                </h3>
+                <button
+                  onClick={() => {
+                    setSelectedDestination(null);
+                    setShowDestinations(true);
+                  }}
+                  className="text-gray-400 hover:text-white text-sm"
+                >
+                  ← Change
+                </button>
               </div>
 
-              <h3 className="text-lg font-bold text-white mb-4">Visa Type</h3>
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="bg-gray-800/50 rounded-xl p-4 mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-white font-semibold">{selectedDestination.provider}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <Globe className="w-4 h-4" />
+                  <a
+                    href={selectedDestination.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300"
+                  >
+                    {selectedDestination.website}
+                  </a>
+                </div>
+              </div>
+
+              <h4 className="text-white font-semibold mb-3">Visa Type</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-6">
                 {VISA_TYPES.map((type) => (
                   <button
                     key={type.id}
                     onClick={() => setSelectedVisaType(type)}
                     className={`p-3 rounded-xl text-center transition-all ${
                       selectedVisaType?.id === type.id
-                        ? 'bg-orange-500/20 border-2 border-orange-500'
-                        : 'bg-gray-800/50 border-2 border-transparent hover:border-gray-600'
+                        ? 'bg-orange-500/20 border-2 border-orange-500 text-white'
+                        : 'bg-gray-800/50 border-2 border-transparent text-gray-300 hover:border-gray-600'
                     }`}
                   >
-                    <p className="text-white font-semibold text-sm">{type.name}</p>
+                    <span className="text-sm font-medium">{type.name}</span>
                   </button>
                 ))}
               </div>
 
-              <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl mb-4">
-                <div className="flex items-start gap-3">
-                  <MessageCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-yellow-400 font-semibold text-sm mb-1">Get Instant Telegram Alerts!</p>
-                    <p className="text-gray-400 text-xs">
-                      The fastest way to get notified. Search for <span className="text-white">@Visaaigptprobot</span> on Telegram and start a chat to receive alerts.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <h3 className="text-lg font-bold text-white mb-4">Notification Method</h3>
+              <h4 className="text-white font-semibold mb-3">Get Alert Via</h4>
               <div className="space-y-3 mb-6">
                 <button
                   onClick={() => setNotificationMethod('telegram')}
@@ -257,9 +358,12 @@ export default function AppointmentTracker() {
                 >
                   <div className="flex items-center gap-3">
                     <MessageCircle className="w-5 h-5 text-blue-400" />
-                    <span className="text-white font-semibold">Telegram (Recommended)</span>
+                    <div className="text-left">
+                      <span className="text-white font-semibold">Telegram (Recommended)</span>
+                      <p className="text-gray-400 text-xs">Instant notifications on your phone</p>
+                    </div>
                   </div>
-                  <span className="text-green-400 text-sm">Free & Instant</span>
+                  <span className="text-green-400 text-sm">Free</span>
                 </button>
 
                 <button
@@ -272,7 +376,10 @@ export default function AppointmentTracker() {
                 >
                   <div className="flex items-center gap-3">
                     <Bell className="w-5 h-5 text-purple-400" />
-                    <span className="text-white font-semibold">Email</span>
+                    <div className="text-left">
+                      <span className="text-white font-semibold">Email</span>
+                      <p className="text-gray-400 text-xs">Get notified via email</p>
+                    </div>
                   </div>
                   <span className="text-green-400 text-sm">Free</span>
                 </button>
@@ -287,9 +394,9 @@ export default function AppointmentTracker() {
                       value={telegramUsername}
                       onChange={(e) => setTelegramUsername(e.target.value.replace('@', ''))}
                       className="input flex-1"
-                      placeholder="your_username (without @)"
+                      placeholder="your_username"
                     />
-                      <a
+                    <a
                       href="https://t.me/Visaaigptprobot"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -299,7 +406,9 @@ export default function AppointmentTracker() {
                       Open Bot
                     </a>
                   </div>
-                  <p className="text-gray-500 text-xs mt-1">Open the Telegram bot first to enable notifications</p>
+                  <p className="text-gray-500 text-xs mt-1">
+                    Make sure you've started @Visaaigptprobot on Telegram first
+                  </p>
                 </div>
               )}
 
@@ -324,7 +433,7 @@ export default function AppointmentTracker() {
 
               <button
                 onClick={subscribe}
-                disabled={loading || !selectedDestination || !selectedVisaType}
+                disabled={loading || !selectedVisaType || (notificationMethod === 'telegram' && !telegramUsername) || (notificationMethod === 'email' && !email)}
                 className="w-full btn-primary flex items-center justify-center gap-2 glow-button disabled:opacity-50"
               >
                 {loading ? (
@@ -335,71 +444,41 @@ export default function AppointmentTracker() {
                 ) : (
                   <>
                     <Bell className="w-5 h-5" />
-                    Subscribe to Alerts
+                    Subscribe for Alerts
                   </>
                 )}
               </button>
+            </div>
+          )}
 
-              <button
-                onClick={() => checkSlotsNow(selectedDestination)}
-                disabled={checkingSlots}
-                className="w-full mt-3 py-3 bg-gray-700 rounded-xl text-white hover:bg-gray-600 flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {checkingSlots ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Checking...
-                  </>
-                ) : (
-                  <>
-                    <Clock className="w-5 h-5" />
-                    Check Slots Now
-                  </>
-                )}
-              </button>
-
-              {slotStatus && (
-                <div className={`mt-4 p-4 rounded-xl ${
-                  slotStatus.available 
-                    ? 'bg-green-500/10 border border-green-500/30' 
-                    : 'bg-yellow-500/10 border border-yellow-500/30'
-                }`}>
-                  <p className={slotStatus.available ? 'text-green-400' : 'text-yellow-400'}>
-                    {slotStatus.message}
+          {success && (
+            <div className="glass-card rounded-3xl p-6 border-2 border-green-500/50">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-green-400" />
+                </div>
+                <div>
+                  <h3 className="text-green-400 font-bold">Subscribed!</h3>
+                  <p className="text-gray-400 text-sm">{success}</p>
+                </div>
+              </div>
+              
+              {notificationMethod === 'telegram' && (
+                <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl mb-4">
+                  <p className="text-blue-400 text-sm">
+                    📱 Check your Telegram - you should receive a confirmation from @Visaaigptprobot!
                   </p>
                 </div>
               )}
-            </>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="glass-card rounded-3xl p-6 border-2 border-green-500/50">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-400" />
-              </div>
-              <div>
-                <h3 className="text-green-400 font-bold">Successfully Subscribed!</h3>
-                <p className="text-gray-400 text-sm">{success}</p>
-              </div>
+              
+              <button
+                onClick={reset}
+                className="text-orange-400 text-sm hover:underline"
+              >
+                + Subscribe to another destination
+              </button>
             </div>
-            
-            {notificationMethod === 'telegram' && (
-              <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl mb-4">
-                    <p className="text-blue-400 text-sm">
-                    📱 Make sure you've opened <span className="font-bold">@Visaaigptprobot</span> on Telegram!
-                  </p>
-              </div>
-            )}
-            
-            <button
-              onClick={reset}
-              className="text-orange-400 text-sm hover:underline"
-            >
-              + Subscribe to another destination
-            </button>
-          </div>
+          )}
 
           {subscriptions.length > 0 && (
             <div className="glass-card rounded-3xl p-6">
@@ -411,7 +490,6 @@ export default function AppointmentTracker() {
                     <div className="flex items-center gap-2 mt-1">
                       {sub.notify_telegram && <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Telegram</span>}
                       {sub.notify_email && <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded">Email</span>}
-                      <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">{sub.status}</span>
                     </div>
                   </div>
                   <button
@@ -427,47 +505,17 @@ export default function AppointmentTracker() {
         </div>
       )}
 
-      <div className="glass-card rounded-3xl p-6">
-        <h3 className="text-lg font-bold text-white mb-4">How It Works</h3>
-        <div className="space-y-4">
-          <div className="flex items-start gap-4">
-            <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-              <span className="text-orange-400 font-bold">1</span>
-            </div>
-            <div>
-              <p className="text-white font-semibold">Subscribe to a Destination</p>
-              <p className="text-gray-400 text-sm">Select your country and visa type</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4">
-            <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-              <span className="text-orange-400 font-bold">2</span>
-            </div>
-            <div>
-              <p className="text-white font-semibold">Open Telegram Bot</p>
-              <p className="text-gray-400 text-sm">Start a chat with @Visaaigptprobot to enable alerts</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4">
-            <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-              <span className="text-orange-400 font-bold">3</span>
-            </div>
-            <div>
-              <p className="text-white font-semibold">Get Instant Alerts</p>
-              <p className="text-gray-400 text-sm">We'll notify you the moment slots open - usually within minutes!</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-3xl p-6 bg-red-500/5 border border-red-500/20">
+      <div className="glass-card rounded-3xl p-6 bg-yellow-500/5 border border-yellow-500/20">
         <div className="flex items-start gap-3">
-          <AlertCircle className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
+          <Info className="w-6 h-6 text-yellow-400 flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-red-400 font-bold mb-2">Important Note</h3>
-            <p className="text-gray-400 text-sm">
-              Slots fill up VERY fast - sometimes within hours of opening. Make sure your Telegram notifications are enabled so you don't miss the alert!
-            </p>
+            <h3 className="text-yellow-400 font-bold mb-2">Important</h3>
+            <ul className="text-gray-400 text-sm space-y-1">
+              <li>• Always book appointments through official websites only</li>
+              <li>• Never pay intermediaries to book for you</li>
+              <li>• Slots fill up fast - check websites daily</li>
+              <li>• We notify you when subscribed destinations have openings</li>
+            </ul>
           </div>
         </div>
       </div>
