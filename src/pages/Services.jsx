@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Shield, FileText, Upload, Download, Globe, Clock, CreditCard, CheckCircle, AlertCircle, Loader2, ChevronDown, ChevronUp, FileUp } from 'lucide-react';
+import { Shield, FileText, Upload, Download, Globe, Clock, CreditCard, CheckCircle, AlertCircle, Loader2, ChevronDown, FileUp, Calculator, Mail } from 'lucide-react';
+import FinancialProofPlanner from '../components/FinancialProofPlanner';
+import LetterGenerator from '../components/LetterGenerator';
 
 export default function Services() {
   const { t } = useTranslation();
@@ -46,8 +48,6 @@ export default function Services() {
     { code: 'fr', name: 'French' },
     { code: 'de', name: 'German' },
     { code: 'es', name: 'Spanish' },
-    { code: 'it', name: 'Italian' },
-    { code: 'nl', name: 'Dutch' },
     { code: 'ar', name: 'Arabic' },
     { code: 'zh', name: 'Chinese' },
     { code: 'ja', name: 'Japanese' },
@@ -120,29 +120,51 @@ export default function Services() {
           <p className="text-gray-400">Additional services to complete your visa application</p>
         </div>
 
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex bg-gray-800/50 rounded-xl p-1">
+        <div className="flex justify-center mb-8 overflow-x-auto">
+          <div className="inline-flex bg-gray-800/50 rounded-xl p-1 gap-1">
             <button
               onClick={() => setActiveTab('insurance')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all ${
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'insurance' 
                   ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' 
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              <Shield size={20} />
-              <span>Travel Insurance</span>
+              <Shield size={18} />
+              <span>Insurance</span>
             </button>
             <button
               onClick={() => setActiveTab('translation')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all ${
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap ${
                 activeTab === 'translation' 
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              <Globe size={20} />
+              <Globe size={18} />
               <span>Translation</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('financial')}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'financial' 
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Calculator size={18} />
+              <span>Financial Planner</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('letters')}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap ${
+                activeTab === 'letters' 
+                  ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Mail size={18} />
+              <span>Letter Generator</span>
             </button>
           </div>
         </div>
@@ -175,7 +197,7 @@ export default function Services() {
                 </div>
               </div>
               <p className="text-gray-400 text-sm">
-                Travel insurance is mandatory for Schengen visa applications. We partner with leading insurance providers to offer you comprehensive coverage at competitive prices. Purchase and get your certificate instantly.
+                Travel insurance is mandatory for Schengen visa applications. We partner with leading insurance providers to offer you comprehensive coverage at competitive prices.
               </p>
             </div>
 
@@ -426,12 +448,11 @@ export default function Services() {
                 <div className="mt-6 p-4 bg-gray-800/50 rounded-xl">
                   <h4 className="text-white font-semibold mb-2">Supported Languages</h4>
                   <div className="flex flex-wrap gap-2">
-                    {languages.slice(0, 6).map((lang) => (
+                    {languages.map((lang) => (
                       <span key={lang.code} className="px-3 py-1 bg-gray-700 rounded-full text-gray-300 text-sm">
                         {lang.name}
                       </span>
                     ))}
-                    <span className="px-3 py-1 bg-gray-700 rounded-full text-gray-300 text-sm">+4 more</span>
                   </div>
                 </div>
 
@@ -450,6 +471,10 @@ export default function Services() {
             </div>
           </div>
         )}
+
+        {activeTab === 'financial' && <FinancialProofPlanner />}
+
+        {activeTab === 'letters' && <LetterGenerator />}
       </div>
     </div>
   );
