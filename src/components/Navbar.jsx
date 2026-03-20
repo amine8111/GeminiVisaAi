@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Home, FileText, User, Clipboard, FolderOpen, LogOut, Menu, X, Bot, FileSignature } from 'lucide-react';
+import { Home, FileText, User, Clipboard, FolderOpen, LogOut, Menu, X, Bot, FileSignature, Shield, Globe } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import LanguageSwitcher from './LanguageSwitcher';
 
@@ -23,6 +23,7 @@ export default function Navbar() {
     { path: '/eligibility-test', label: t('nav.assessment'), icon: Clipboard },
     { path: '/simulator', label: t('nav.simulator'), icon: Clipboard },
     { path: '/form-filling', label: t('nav.formFilling'), icon: FileSignature },
+    { path: '/services', label: t('nav.services'), icon: Globe },
     { path: '/documents', label: t('nav.documents'), icon: FileText },
     { path: '/applications', label: t('nav.applications'), icon: FolderOpen },
   ];

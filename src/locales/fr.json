@@ -20,6 +20,7 @@
     "assessment": "Évaluation",
     "simulator": "Simulateur",
     "formFilling": "Remplissage",
+    "services": "Services",
     "documents": "Documents",
     "applications": "Applications",
     "logout": "Déconnexion"
@@ -194,6 +195,38 @@
       "submitted": "Soumis",
       "approved": "Approuvé",
       "rejected": "Rejeté"
+    }
+  },
+  "services": {
+    "title": "Services de Visa",
+    "subtitle": "Services supplémentaires pour compléter votre demande de visa",
+    "insurance": {
+      "title": "Assurance Voyage",
+      "subtitle": "Requis pour les demandes de visa Schengen. Obtenez une couverture instantanément.",
+      "description": "L'assurance voyage est obligatoire pour les demandes de visa Schengen. Nous nous associons aux principaux fournisseurs d'assurance pour vous offrir une couverture complète à des prix compétitifs.",
+      "basic": "Couverture Basique",
+      "standard": "Couverture Standard",
+      "premium": "Couverture Premium",
+      "getQuote": "Obtenir un Devis",
+      "recommended": "Recommandé",
+      "perTrip": "/ voyage"
+    },
+    "translation": {
+      "title": "Traduction de Documents",
+      "subtitle": "Traduisez vos documents vers n'importe quelle langue",
+      "normal": "Traduction Normale",
+      "normalDesc": "Traduction par IA, disponible instantanément. Service gratuit.",
+      "official": "Traduction Officielle",
+      "officialDesc": "Traduction certifiée par des traducteurs professionnels. 15€ par page. Prête en 24 heures.",
+      "upload": "Télécharger le Document",
+      "dropPdf": "Déposez votre PDF ici",
+      "browse": "ou cliquez pour parcourir",
+      "translateTo": "Traduire En",
+      "translate": "Traduire le Document",
+      "request": "Demander une Traduction Officielle",
+      "complete": "Traduction Terminée!",
+      "download": "Télécharger",
+      "supported": "Langues Supportées"
     }
   },
   "footer": {

@@ -16,6 +16,7 @@ import Processing from './pages/Processing';
 import Results from './pages/Results';
 import Simulator from './pages/Simulator';
 import FormFilling from './pages/FormFilling';
+import Services from './pages/Services';
 import Navbar from './components/Navbar';
 
 function ProtectedRoute({ children }) {
@@ -69,6 +70,7 @@ function AppRoutes() {
         <Route path="/results" element={<ProtectedRoute><Results /></ProtectedRoute>} />
         <Route path="/simulator" element={<ProtectedRoute><Simulator /></ProtectedRoute>} />
         <Route path="/form-filling" element={<ProtectedRoute><FormFilling /></ProtectedRoute>} />
+        <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

@@ -12,7 +12,8 @@
     "profile": "Profile",
     "documents": "Documents",
     "applications": "Applications",
-    "settings": "Settings"
+    "settings": "Settings",
+    "services": "Services"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -20,6 +21,7 @@
     "assessment": "Assessment",
     "simulator": "Simulator",
     "formFilling": "Form Filling",
+    "services": "Services",
     "documents": "Documents",
     "applications": "Applications",
     "logout": "Logout"
@@ -194,6 +196,38 @@
       "submitted": "Submitted",
       "approved": "Approved",
       "rejected": "Rejected"
+    }
+  },
+  "services": {
+    "title": "Visa Services",
+    "subtitle": "Additional services to complete your visa application",
+    "insurance": {
+      "title": "Travel Insurance",
+      "subtitle": "Required for Schengen visa applications. Get coverage instantly.",
+      "description": "Travel insurance is mandatory for Schengen visa applications. We partner with leading insurance providers to offer you comprehensive coverage at competitive prices. Purchase and get your certificate instantly.",
+      "basic": "Basic Coverage",
+      "standard": "Standard Coverage",
+      "premium": "Premium Coverage",
+      "getQuote": "Get Quote",
+      "recommended": "Recommended",
+      "perTrip": "/ trip"
+    },
+    "translation": {
+      "title": "Document Translation",
+      "subtitle": "Translate your documents to any language",
+      "normal": "Normal Translation",
+      "normalDesc": "AI-powered translation, available instantly. Free service.",
+      "official": "Official Translation",
+      "officialDesc": "Certified translation by professional translators. €15 per page. Ready in 24 hours.",
+      "upload": "Upload Document",
+      "dropPdf": "Drop your PDF here",
+      "browse": "or click to browse",
+      "translateTo": "Translate To",
+      "translate": "Translate Document",
+      "request": "Request Official Translation",
+      "complete": "Translation Complete!",
+      "download": "Download",
+      "supported": "Supported Languages"
     }
   },
   "footer": {
