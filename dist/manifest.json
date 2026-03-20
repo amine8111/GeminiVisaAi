@@ -1,0 +1,16 @@
+{
+  "name": "VisaAI",
+  "short_name": "VisaAI",
+  "description": "Assess your visa approval probability",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A1628",
+  "theme_color": "#8B5CF6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
