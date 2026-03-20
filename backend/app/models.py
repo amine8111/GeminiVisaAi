@@ -166,3 +166,44 @@ class DocumentMetadata(db.Model):
             "file_name": self.file_name,
             "uploaded_at": self.uploaded_at.isoformat() if self.uploaded_at else None,
         }
+
+
+class AppointmentSubscription(db.Model):
+    __tablename__ = "appointment_subscriptions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    destination = db.Column(db.String(100), nullable=False)
+    visa_type = db.Column(db.String(50), default="Schengen")
+    telegram_chat_id = db.Column(db.String(100), nullable=True)
+    telegram_username = db.Column(db.String(100), nullable=True)
+    email = db.Column(db.String(120), nullable=True)
+    phone = db.Column(db.String(20), nullable=True)
+    notify_telegram = db.Column(db.Boolean, default=True)
+    notify_email = db.Column(db.Boolean, default=False)
+    notify_sms = db.Column(db.Boolean, default=False)
+    status = db.Column(db.String(20), default="active")
+    last_checked = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship("User", backref="subscriptions")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "destination": self.destination,
+            "visa_type": self.visa_type,
+            "telegram_chat_id": self.telegram_chat_id,
+            "telegram_username": self.telegram_username,
+            "email": self.email,
+            "phone": self.phone,
+            "notify_telegram": self.notify_telegram,
+            "notify_email": self.notify_email,
+            "notify_sms": self.notify_sms,
+            "status": self.status,
+            "last_checked": self.last_checked.isoformat()
+            if self.last_checked
+            else None,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }

@@ -1,9 +1,16 @@
 from flask import Blueprint, request, jsonify, send_file, make_response
 from app import db
-from app.models import User, Profile, VisaApplication, DocumentMetadata
+from app.models import (
+    User,
+    Profile,
+    VisaApplication,
+    DocumentMetadata,
+    AppointmentSubscription,
+)
 from app.services.ai_eligibility import calculate_eligibility
 from app.services.form_filler import generate_schengen_form_pdf
 from app.services.email_service import send_milestone_reminder
+from app.services.telegram_service import send_appointment_alert
 import jwt
 from datetime import datetime, timedelta
 from functools import wraps
@@ -367,3 +374,119 @@ def send_reminder(current_user):
     if success:
         return jsonify({"message": "Reminder sent successfully"}), 200
     return jsonify({"message": "Failed to send reminder"}), 500
+
+
+@bp.route("/api/appointments/subscriptions", methods=["GET"])
+@token_required
+def get_subscriptions(current_user):
+    subscriptions = AppointmentSubscription.query.filter_by(
+        user_id=current_user.id, status="active"
+    ).all()
+    return jsonify({"subscriptions": [sub.to_dict() for sub in subscriptions]}), 200
+
+
+@bp.route("/api/appointments/subscribe", methods=["POST"])
+@token_required
+def subscribe_appointment(current_user):
+    data = request.get_json()
+
+    if not data.get("destination"):
+        return jsonify({"message": "Destination is required"}), 400
+
+    existing = AppointmentSubscription.query.filter_by(
+        user_id=current_user.id, destination=data.get("destination"), status="active"
+    ).first()
+
+    if existing:
+        return jsonify({"message": "Already subscribed to this destination"}), 409
+
+    subscription = AppointmentSubscription(
+        user_id=current_user.id,
+        destination=data.get("destination"),
+        destination_name=data.get("destination_name"),
+        visa_type=data.get("visa_type", "tourist"),
+        telegram_username=data.get("telegram_username"),
+        email=data.get("email") or (current_user.email if current_user.email else None),
+        phone=data.get("phone"),
+        notify_telegram=data.get("notification_method") == "telegram",
+        notify_email=data.get("notification_method") == "email",
+        status="active",
+    )
+
+    db.session.add(subscription)
+    db.session.commit()
+
+    if data.get("telegram_username"):
+        try:
+            send_appointment_alert(
+                chat_id=f"@{data.get('telegram_username')}",
+                destination=data.get("destination_name", data.get("destination")),
+                status="subscribed",
+            )
+        except Exception as e:
+            print(f"Telegram notification error: {e}")
+
+    return jsonify(
+        {"message": "Subscribed successfully", "subscription": subscription.to_dict()}
+    ), 201
+
+
+@bp.route("/api/appointments/unsubscribe/<int:sub_id>", methods=["DELETE"])
+@token_required
+def unsubscribe_appointment(current_user, sub_id):
+    subscription = AppointmentSubscription.query.filter_by(
+        id=sub_id, user_id=current_user.id
+    ).first()
+
+    if not subscription:
+        return jsonify({"message": "Subscription not found"}), 404
+
+    subscription.status = "cancelled"
+    db.session.commit()
+
+    return jsonify({"message": "Unsubscribed successfully"}), 200
+
+
+@bp.route("/api/appointments/notify", methods=["POST"])
+def notify_appointments():
+    data = request.get_json()
+    destination = data.get("destination")
+
+    if not destination:
+        return jsonify({"message": "Destination required"}), 400
+
+    subscriptions = AppointmentSubscription.query.filter_by(
+        destination=destination, status="active"
+    ).all()
+
+    notified = 0
+    for sub in subscriptions:
+        if sub.notify_telegram and sub.telegram_username:
+            try:
+                send_appointment_alert(
+                    chat_id=f"@{sub.telegram_username}",
+                    destination=sub.destination_name or sub.destination,
+                    status="available",
+                )
+                notified += 1
+            except Exception as e:
+                print(f"Failed to notify {sub.telegram_username}: {e}")
+
+    return jsonify({"message": f"Notified {notified} subscribers"}), 200
+
+
+@bp.route("/api/telegram/send", methods=["POST"])
+def telegram_send():
+    data = request.get_json()
+
+    chat_id = data.get("chat_id")
+    message = data.get("message")
+
+    if not chat_id or not message:
+        return jsonify({"message": "chat_id and message required"}), 400
+
+    result = send_appointment_alert(chat_id, message)
+
+    if result.get("ok"):
+        return jsonify({"message": "Message sent"}), 200
+    return jsonify({"message": "Failed to send", "error": result}), 500
