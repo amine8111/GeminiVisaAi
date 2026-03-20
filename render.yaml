@@ -14,3 +14,5 @@ services:
         value: gemini-visa-ai-secret-key-2024
       - key: FRONTEND_URL
         value: https://visa-ai-one.vercel.app
+      - key: TELEGRAM_BOT_TOKEN
+        value: 8521780664:AAF-mbh2Lz9e3qY2qABMQE3V0KpDv0go9KY
