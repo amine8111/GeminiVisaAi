@@ -239,7 +239,7 @@ export default function AppointmentTracker() {
                   <div>
                     <p className="text-yellow-400 font-semibold text-sm mb-1">Get Instant Telegram Alerts!</p>
                     <p className="text-gray-400 text-xs">
-                      The fastest way to get notified. Search for <span className="text-white">@VisagptAlertBot</span> on Telegram and start a chat to receive alerts.
+                      The fastest way to get notified. Search for <span className="text-white">@Visaaigptprobot</span> on Telegram and start a chat to receive alerts.
                     </p>
                   </div>
                 </div>
@@ -289,8 +289,8 @@ export default function AppointmentTracker() {
                       className="input flex-1"
                       placeholder="your_username (without @)"
                     />
-                    <a
-                      href="https://t.me/VisagptAlertBot"
+                      <a
+                      href="https://t.me/Visaaigptprobot"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-4 py-2 bg-blue-600 rounded-xl text-white hover:bg-blue-500 flex items-center gap-2"
@@ -387,9 +387,9 @@ export default function AppointmentTracker() {
             
             {notificationMethod === 'telegram' && (
               <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl mb-4">
-                <p className="text-blue-400 text-sm">
-                  📱 Make sure you've opened <span className="font-bold">@VisagptAlertBot</span> on Telegram!
-                </p>
+                    <p className="text-blue-400 text-sm">
+                    📱 Make sure you've opened <span className="font-bold">@Visaaigptprobot</span> on Telegram!
+                  </p>
               </div>
             )}
             
@@ -445,7 +445,7 @@ export default function AppointmentTracker() {
             </div>
             <div>
               <p className="text-white font-semibold">Open Telegram Bot</p>
-              <p className="text-gray-400 text-sm">Start a chat with @VisagptAlertBot to enable alerts</p>
+              <p className="text-gray-400 text-sm">Start a chat with @Visaaigptprobot to enable alerts</p>
             </div>
           </div>
           <div className="flex items-start gap-4">
