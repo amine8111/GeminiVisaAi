@@ -490,3 +490,182 @@ def telegram_send():
     if result.get("ok"):
         return jsonify({"message": "Message sent"}), 200
     return jsonify({"message": "Failed to send", "error": result}), 500
+
+
+@bp.route("/api/telegram/webhook", methods=["POST"])
+def telegram_webhook():
+    """Handle incoming Telegram bot messages"""
+    from app.services.telegram_service import (
+        process_telegram_command,
+        send_welcome_message,
+    )
+    from app.models import TelegramUser
+
+    try:
+        update = request.get_json()
+
+        if not update:
+            return jsonify({"ok": True}), 200
+
+        parsed = update.get("message", {})
+        chat = parsed.get("chat", {})
+        chat_id = str(chat.get("id"))
+        username = chat.get("username")
+        first_name = chat.get("first_name")
+        text = parsed.get("text", "").strip().lower()
+
+        if text in ["/start", "/start@visagptalertbot", "start", "hello", "hi"]:
+            user, created = TelegramUser.get_or_create(chat_id=chat_id)
+            user.username = username
+            user.first_name = first_name
+            user.last_message_at = datetime.utcnow()
+            user.is_active = True
+            db.session.commit()
+
+            send_welcome_message(chat_id, first_name)
+            return jsonify({"ok": True, "action": "start"}), 200
+
+        elif text in ["/help", "/help@visagptalertbot", "help"]:
+            from app.services.telegram_service import send_help_message
+
+            send_help_message(chat_id)
+            return jsonify({"ok": True, "action": "help"}), 200
+
+        elif text in ["/status", "/status@visagptalertbot", "status"]:
+            from app.services.telegram_service import send_telegram_message
+
+            user = TelegramUser.query.filter_by(chat_id=chat_id).first()
+            if user:
+                message = f"""
+📊 <b>Your Status</b>
+
+✅ Bot is active!
+👤 Username: @{username or "Not set"}
+📅 Active since: {user.created_at.strftime("%Y-%m-%d") if user.created_at else "Unknown"}
+
+Visit https://visa-ai-one.vercel.app to subscribe to alerts.
+"""
+            else:
+                message = """
+📊 <b>Your Status</b>
+
+❌ Not registered yet!
+
+Send /start to begin.
+"""
+            send_telegram_message(chat_id, message)
+            return jsonify({"ok": True, "action": "status"}), 200
+
+        elif text.startswith("/"):
+            from app.services.telegram_service import send_telegram_message
+
+            send_telegram_message(
+                chat_id, "Unknown command. Send /help for available commands."
+            )
+            return jsonify({"ok": True, "action": "unknown_command"}), 200
+
+        return jsonify({"ok": True}), 200
+
+    except Exception as e:
+        print(f"Telegram webhook error: {e}")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@bp.route("/api/telegram/broadcast", methods=["POST"])
+def telegram_broadcast():
+    """Broadcast message to all subscribed Telegram users"""
+    from app.models import TelegramUser
+    from app.services.telegram_service import send_telegram_message
+
+    data = request.get_json()
+    message = data.get("message")
+
+    if not message:
+        return jsonify({"message": "Message required"}), 400
+
+    users = TelegramUser.query.filter_by(is_active=True).all()
+    sent = 0
+    failed = 0
+
+    for user in users:
+        result = send_telegram_message(user.chat_id, message)
+        if result.get("ok"):
+            sent += 1
+        else:
+            failed += 1
+
+    return jsonify(
+        {
+            "message": f"Broadcast sent",
+            "total": len(users),
+            "sent": sent,
+            "failed": failed,
+        }
+    ), 200
+
+
+@bp.route("/api/telegram/users", methods=["GET"])
+def telegram_get_users():
+    """Get all registered Telegram users (admin)"""
+    from app.models import TelegramUser
+
+    users = TelegramUser.query.filter_by(is_active=True).all()
+    return jsonify({"count": len(users), "users": [u.to_dict() for u in users]}), 200
+
+
+@bp.route("/api/telegram/test", methods=["GET"])
+def telegram_test():
+    """Test Telegram bot connectivity"""
+    from app.services.telegram_service import get_me, send_telegram_message
+
+    me = get_me()
+
+    return jsonify(
+        {"bot_info": me, "status": "Bot is running" if me.get("ok") else "Bot error"}
+    ), 200
+
+
+@bp.route("/api/telegram/setup-webhook", methods=["POST"])
+def telegram_setup_webhook():
+    """Set up Telegram webhook"""
+    import requests
+    from config import Config
+
+    data = request.get_json() or {}
+    webhook_url = data.get("webhook_url")
+
+    if not webhook_url:
+        return jsonify({"message": "webhook_url required"}), 400
+
+    TELEGRAM_API_URL = f"https://api.telegram.org/bot{Config.TELEGRAM_BOT_TOKEN}"
+
+    try:
+        url = f"{TELEGRAM_API_URL}/setWebhook"
+        response = requests.post(
+            url, json={"url": webhook_url, "drop_pending_updates": True}, timeout=10
+        )
+        result = response.json()
+
+        if result.get("ok"):
+            return jsonify(
+                {"message": "Webhook set successfully", "webhook_url": webhook_url}
+            ), 200
+        return jsonify({"message": "Failed to set webhook", "error": result}), 500
+    except Exception as e:
+        return jsonify({"message": "Error", "error": str(e)}), 500
+
+
+@bp.route("/api/telegram/get-webhook-info", methods=["GET"])
+def telegram_get_webhook_info():
+    """Get current webhook info"""
+    import requests
+    from config import Config
+
+    TELEGRAM_API_URL = f"https://api.telegram.org/bot{Config.TELEGRAM_BOT_TOKEN}"
+
+    try:
+        url = f"{TELEGRAM_API_URL}/getWebhookInfo"
+        response = requests.get(url, timeout=10)
+        return jsonify(response.json()), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

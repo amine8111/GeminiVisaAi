@@ -207,3 +207,37 @@ class AppointmentSubscription(db.Model):
             else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
+
+
+class TelegramUser(db.Model):
+    __tablename__ = "telegram_users"
+
+    id = db.Column(db.Integer, primary_key=True)
+    chat_id = db.Column(db.String(100), unique=True, nullable=False)
+    username = db.Column(db.String(100), nullable=True)
+    first_name = db.Column(db.String(100), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    subscribed_destinations = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_message_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "chat_id": self.chat_id,
+            "username": self.username,
+            "first_name": self.first_name,
+            "is_active": self.is_active,
+            "subscribed_destinations": self.subscribed_destinations,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
+    @classmethod
+    def get_or_create(cls, chat_id):
+        """Get existing user or create new one"""
+        user = cls.query.filter_by(chat_id=chat_id).first()
+        if not user:
+            user = cls(chat_id=chat_id)
+            db.session.add(user)
+            db.session.commit()
+        return user, user.created_at is not None

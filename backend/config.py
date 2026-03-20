@@ -13,3 +13,7 @@ class Config:
         "SENDGRID_DEFAULT_FROM_EMAIL", "noreply@visaai.com"
     )
     FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+    TELEGRAM_BOT_TOKEN = os.environ.get(
+        "TELEGRAM_BOT_TOKEN", "8521780664:AAF-mbh2Lz9e3qY2qABMQE3V0KpDv0go9KY"
+    )
+    TELEGRAM_WEBHOOK_URL = os.environ.get("TELEGRAM_WEBHOOK_URL", "")
